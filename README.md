@@ -1,9 +1,9 @@
 # ✔ Checklist Fitur - Sistem Pencatatan Perkembangan Anak
 
 ## 1. Setup & Pondasi
-- [ ] Instalasi Laravel Project
-- [ ] Setup GitHub repo
-- [ ] Instalasi Jetstream/Breeze
+- [X] Instalasi Laravel Project
+- [X] Setup GitHub repo
+- [X] Instalasi Jetstream/Breeze
 - [ ] Template admin panel (optional: Filament)
 - [ ] Struktur folder controller, model, service, view
 
