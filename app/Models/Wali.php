@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Wali extends Model
 {
@@ -14,13 +16,13 @@ class Wali extends Model
         'pekerjaan',
     ];
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function siswas()
+    public function siswas(): HasMany
     {
-        return $this->hasMany(Siswa::class);
+        return $this->hasMany(Siswa::class, 'wali_id');
     }
 }
