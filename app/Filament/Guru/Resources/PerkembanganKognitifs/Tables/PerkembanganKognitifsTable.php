@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Filament\Guru\Resources\PerkembanganFisiks\Tables;
+namespace App\Filament\Guru\Resources\PerkembanganKognitifs\Tables;
 
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -8,7 +8,7 @@ use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
-class PerkembanganFisiksTable
+class PerkembanganKognitifsTable
 {
     public static function configure(Table $table): Table
     {
@@ -19,27 +19,16 @@ class PerkembanganFisiksTable
                     ->sortable()
                     ->searchable(),
 
-                TextColumn::make('umur_bulan')
-                    ->label('Umur (bulan)')
+                TextColumn::make('indikator.aspek')
+                    ->label('Indikator')
                     ->sortable()
                     ->searchable(),
 
-                TextColumn::make('tinggi_badan')
-                    ->label('Tinggi (cm)')
-                    ->sortable(),
-
-                TextColumn::make('berat_badan')
-                    ->label('Berat (kg)')
-                    ->sortable(),
-
-                TextColumn::make('lingkar_kepala')
-                    ->label('Lingkar Kepala (cm)')
-                    ->sortable(),
-
-                TextColumn::make('tanggal_ukur')
-                    ->label('Tanggal Ukur')
-                    ->date('d-m-Y')
-                    ->sortable(),
+                TextColumn::make('narasi')
+                    ->label('Narasi')
+                    ->limit(60)
+                    ->wrap()
+                    ->toggleable(),
 
                 TextColumn::make('status_persetujuan')
                     ->label('Status')
@@ -57,9 +46,6 @@ class PerkembanganFisiksTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('created_at', 'desc')
-            ->filters([
-                //
-            ])
             ->recordActions([
                 EditAction::make(),
             ])

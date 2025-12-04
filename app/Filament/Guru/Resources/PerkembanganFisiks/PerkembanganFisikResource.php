@@ -8,18 +8,23 @@ use App\Filament\Guru\Resources\PerkembanganFisiks\Pages\ListPerkembanganFisiks;
 use App\Filament\Guru\Resources\PerkembanganFisiks\Schemas\PerkembanganFisikForm;
 use App\Filament\Guru\Resources\PerkembanganFisiks\Tables\PerkembanganFisiksTable;
 use App\Models\PerkembanganFisik;
+use App\Models\TahunAjaran;
 use BackedEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Filament\Support\Icons\Heroicon;
+use UnitEnum;
 
 class PerkembanganFisikResource extends Resource
 {
     protected static ?string $model = PerkembanganFisik::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
+    protected static string | UnitEnum | null $navigationGroup = 'Pencatatan';
+    protected static ?string $navigationLabel = 'Perkembangan Fisik';
+    protected static ?string $pluralModelLabel = 'Perkembangan Fisik';
     protected static ?string $recordTitleAttribute = 'id';
 
     public static function form(Schema $schema): Schema
@@ -34,17 +39,15 @@ class PerkembanganFisikResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => ListPerkembanganFisiks::route('/'),
+            'index'  => ListPerkembanganFisiks::route('/'),
             'create' => CreatePerkembanganFisik::route('/create'),
-            'edit' => EditPerkembanganFisik::route('/{record}/edit'),
+            'edit'   => EditPerkembanganFisik::route('/{record}/edit'),
         ];
     }
 }

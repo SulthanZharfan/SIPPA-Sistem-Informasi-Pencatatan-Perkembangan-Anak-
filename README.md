@@ -60,9 +60,7 @@ Semua dikelola menggunakan Filament v4 Multi-Panel.
 - [X] Siswa  
 - [X] Indikator Perkembangan  
 - [X] Standar Fisik  
-- [ ] User Management  
-- [ ] Backup & Restore  
-- [ ] Log Aktivitas Admin  
+- [X] User Management  
 
 ---
 

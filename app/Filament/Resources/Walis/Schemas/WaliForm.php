@@ -19,7 +19,7 @@ class WaliForm
                     ->label('Akun Wali')
                     ->relationship(
                         name: 'user',
-                        titleAttribute: 'name',
+                        titleAttribute: 'email',
                         modifyQueryUsing: fn (Builder $query) => $query->role('wali'),
                     )
                     ->searchable()
