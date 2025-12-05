@@ -10,11 +10,17 @@ class Kelas extends Model
         'nama',
         'tingkat',
         'tahun_ajaran_id',
+        'guru_id',
     ];
 
     public function tahunAjaran()
     {
         return $this->belongsTo(TahunAjaran::class);
+    }
+
+    public function guru()
+    {
+        return $this->belongsTo(Guru::class);
     }
 
     public function siswas()

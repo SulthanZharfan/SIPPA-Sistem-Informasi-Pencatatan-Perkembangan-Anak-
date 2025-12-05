@@ -31,6 +31,13 @@ class KelasForm
                     ->searchable()
                     ->preload()
                     ->required(),
+
+                Select::make('guru_id')
+                    ->label('Guru')
+                    ->relationship('guru', 'nama')
+                    ->searchable()
+                    ->preload()
+                    ->nullable(),
             ]);
     }
 }

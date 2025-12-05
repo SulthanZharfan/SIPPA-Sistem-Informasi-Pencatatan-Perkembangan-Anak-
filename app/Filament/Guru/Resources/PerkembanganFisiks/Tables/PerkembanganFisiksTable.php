@@ -6,7 +6,10 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Filament\Forms\Components\DatePicker;
+use Illuminate\Database\Eloquent\Builder;
 
 class PerkembanganFisiksTable
 {
@@ -58,7 +61,18 @@ class PerkembanganFisiksTable
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                //
+                Filter::make('tanggal_ukur')
+                    ->label('Tanggal Ukur')
+                    ->form([
+                        DatePicker::make('tanggal')
+                            ->label('Tanggal'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['tanggal'] ?? null,
+                            fn (Builder $q, string $tanggal) => $q->whereDate('tanggal_ukur', $tanggal)
+                        );
+                    }),
             ])
             ->recordActions([
                 EditAction::make(),

@@ -2,18 +2,26 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Presensi extends Model
 {
+    use HasFactory;
+
+    protected $table = 'presensis';
+
     protected $fillable = [
+        'tanggal',
+        'status_kehadiran',
         'siswa_id',
         'guru_id',
         'kelas_id',
         'tahun_ajaran_id',
-        'tanggal',
-        'status_kehadiran',
-        'keterangan',
+    ];
+
+    protected $casts = [
+        'tanggal' => 'date',
     ];
 
     public function siswa()
@@ -33,6 +41,6 @@ class Presensi extends Model
 
     public function tahunAjaran()
     {
-        return $this->belongsTo(TahunAjaran::class);
+        return $this->belongsTo(TahunAjaran::class, 'tahun_ajaran_id');
     }
 }

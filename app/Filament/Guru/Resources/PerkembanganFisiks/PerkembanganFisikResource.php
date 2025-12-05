@@ -10,6 +10,8 @@ use App\Filament\Guru\Resources\PerkembanganFisiks\Tables\PerkembanganFisiksTabl
 use App\Models\PerkembanganFisik;
 use App\Models\TahunAjaran;
 use BackedEnum;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
@@ -35,6 +37,14 @@ class PerkembanganFisikResource extends Resource
     public static function table(Table $table): Table
     {
         return PerkembanganFisiksTable::configure($table);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $guruId = Auth::user()?->guru?->id ?? 0;
+
+        return parent::getEloquentQuery()
+            ->whereHas('siswa.kelas', fn (Builder $query) => $query->where('guru_id', $guruId));
     }
 
     public static function getRelations(): array

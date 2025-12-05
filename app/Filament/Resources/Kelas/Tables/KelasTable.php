@@ -29,6 +29,11 @@ class KelasTable
                     ->sortable()
                     ->searchable(),
 
+                TextColumn::make('guru.nama')
+                    ->label('Guru')
+                    ->sortable()
+                    ->searchable(),
+
                 TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime('d-m-Y H:i')

@@ -38,4 +38,10 @@ class Guru extends Model
     {
         return $this->hasMany(RaporDigital::class, 'pembuat_rapor');
     }
+
+        public function kelas()
+    {
+        return $this->hasMany(Kelas::class);
+    }
+
 }

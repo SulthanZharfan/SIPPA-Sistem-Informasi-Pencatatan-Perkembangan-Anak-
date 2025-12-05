@@ -2,7 +2,6 @@
 
 namespace App\Filament\Guru\Resources\PerkembanganKognitifs\Schemas;
 
-use App\Models\Siswa;
 use App\Models\IndikatorPerkembangan;
 use App\Models\TahunAjaran;
 use Filament\Forms\Components\FileUpload;
@@ -11,6 +10,8 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class PerkembanganKognitifForm
 {
@@ -22,8 +23,17 @@ class PerkembanganKognitifForm
                 Grid::make(2)->schema([
                     Select::make('siswa_id')
                         ->label('Siswa')
-                        ->options(Siswa::orderBy('nama')->pluck('nama', 'id'))
+                        ->relationship(
+                            name: 'siswa',
+                            titleAttribute: 'nama',
+                            modifyQueryUsing: function (Builder $query) {
+                                $guruId = Auth::user()?->guru?->id ?? 0;
+
+                                $query->whereHas('kelas', fn (Builder $kelas) => $kelas->where('guru_id', $guruId));
+                            }
+                        )
                         ->searchable()
+                        ->preload()
                         ->required(),
 
                     Select::make('indikator_id')
@@ -47,7 +57,7 @@ class PerkembanganKognitifForm
                     ->columnSpanFull(),
 
                 Hidden::make('guru_id')
-                    ->default(fn () => auth()->id()),
+                    ->default(fn () => Auth::user()?->guru?->id),
 
                 Hidden::make('tahun_ajaran_id')
                     ->default(fn () => TahunAjaran::where('is_active', 1)->first()?->id),
