@@ -29,8 +29,17 @@ class PresensisTable
                     ->sortable()
                     ->searchable(),
 
+                TextColumn::make('siswa.nis')
+                    ->label('NIS')
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->searchable(),
+
                 TextColumn::make('kelas.nama')
                     ->label('Kelas')
+                    ->badge()
+                    ->color('success')
                     ->sortable(),
 
                 BadgeColumn::make('status_kehadiran')
@@ -59,11 +68,13 @@ class PresensisTable
             ])
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->label('Hapus'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->label('Hapus'),
                 ]),
             ]);
     }

@@ -22,6 +22,18 @@ class PerkembanganKognitifsTable
                     ->sortable()
                     ->searchable(),
 
+                TextColumn::make('siswa.nis')
+                    ->label('NIS')
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->searchable(),
+
+                TextColumn::make('siswa.kelas.nama')
+                    ->label('Kelas')
+                    ->badge()
+                    ->color('success'),
+
                 TextColumn::make('indikator.aspek')
                     ->label('Indikator')
                     ->sortable()

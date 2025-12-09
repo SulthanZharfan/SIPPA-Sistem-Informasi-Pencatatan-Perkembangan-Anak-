@@ -109,6 +109,12 @@ class KelolaPresensi extends Page implements Forms\Contracts\HasForms
                                     ->native(false)
                                     ->required()
                                     ->columnSpan(6),
+
+                                TextInput::make('keterangan')
+                                    ->label('Keterangan')
+                                    ->placeholder('Opsional')
+                                    ->maxLength(255)
+                                    ->columnSpan(12),
                             ])
                             ->addActionLabel('Tambah Presensi')
                             ->disableItemDeletion()
@@ -153,6 +159,7 @@ class KelolaPresensi extends Page implements Forms\Contracts\HasForms
                 'siswa_id'          => $siswa->id,
                 'nama'              => $siswa->nama,
                 'status_kehadiran'  => $existing?->status_kehadiran,
+                'keterangan'        => $existing?->keterangan,
             ];
         })->toArray();
     }
@@ -178,6 +185,7 @@ class KelolaPresensi extends Page implements Forms\Contracts\HasForms
                     'kelas_id'         => $this->record->kelas_id,
                     'tahun_ajaran_id'  => $this->record->tahun_ajaran_id,
                     'tanggal'          => $this->record->tanggal,
+                    'keterangan'       => $row['keterangan'] ?? null,
                 ]
             );
         }

@@ -14,7 +14,7 @@ class ListPertemuanPerkembanganFisiks extends ListRecords
     {
         return [
             CreateAction::make()
-                ->label('New pertemuan perkembangan'),
+                ->label('Tambah Catatan FIsik'),
         ];
     }
 }

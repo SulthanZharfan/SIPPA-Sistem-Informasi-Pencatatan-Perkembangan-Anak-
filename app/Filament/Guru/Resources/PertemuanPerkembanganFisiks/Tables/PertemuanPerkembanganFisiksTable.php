@@ -8,6 +8,9 @@ use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class PertemuanPerkembanganFisiksTable
@@ -15,32 +18,43 @@ class PertemuanPerkembanganFisiksTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->searchPlaceholder('Cari kelas / tahun ajaran / pertemuan')
             ->columns([
                 Tables\Columns\TextColumn::make('kelas.nama')
                     ->label('Kelas')
+                    ->badge()
+                    ->color('success')
                     ->sortable()
-                    ->searchable(),
+                    ->searchable()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('tahunAjaran.tahun')
                     ->label('Tahun Ajaran')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('pertemuan_ke')
                     ->label('Pertemuan Ke-')
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('tanggal')
                     ->label('Tanggal')
                     ->date('d-m-Y')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('jam_mulai')
                     ->label('Mulai')
-                    ->time('H:i'),
+                    ->time('H:i')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('jam_selesai')
                     ->label('Selesai')
-                    ->time('H:i'),
+                    ->time('H:i')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
@@ -55,16 +69,29 @@ class PertemuanPerkembanganFisiksTable
                         'warning' => 'pending',
                         'success' => 'approved',
                         'danger'  => 'rejected',
-                    ]),
+                    ])
+                    ->toggleable(),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
+                SelectFilter::make('status')
                     ->label('Status')
                     ->options([
                         'pending'  => 'Pending',
                         'approved' => 'Disetujui',
                         'rejected' => 'Ditolak',
                     ]),
+
+                Filter::make('tanggal')
+                    ->label('Tanggal')
+                    ->form([
+                        DatePicker::make('mulai')->label('Dari'),
+                        DatePicker::make('sampai')->label('Sampai'),
+                    ])
+                    ->query(function ($query, array $data) {
+                        return $query
+                            ->when($data['mulai'] ?? null, fn ($q, $date) => $q->whereDate('tanggal', '>=', $date))
+                            ->when($data['sampai'] ?? null, fn ($q, $date) => $q->whereDate('tanggal', '<=', $date));
+                    }),
             ])
             ->recordActions([
                 Action::make('kelola')

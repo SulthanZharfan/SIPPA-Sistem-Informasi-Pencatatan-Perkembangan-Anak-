@@ -22,6 +22,18 @@ class PerkembanganFisiksTable
                     ->sortable()
                     ->searchable(),
 
+                TextColumn::make('siswa.nis')
+                    ->label('NIS')
+                    ->badge()
+                    ->color('info')
+                    ->sortable()
+                    ->searchable(),
+
+                TextColumn::make('siswa.kelas.nama')
+                    ->label('Kelas')
+                    ->badge()
+                    ->color('success'),
+
                 TextColumn::make('umur_bulan')
                     ->label('Umur (bulan)')
                     ->sortable()
@@ -79,7 +91,8 @@ class PerkembanganFisiksTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->label('Hapus'),
                 ]),
             ]);
     }

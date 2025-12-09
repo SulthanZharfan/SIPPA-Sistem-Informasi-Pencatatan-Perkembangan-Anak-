@@ -19,6 +19,7 @@ class Presensi extends Model
         'tahun_ajaran_id',
         'tanggal',
         'status_kehadiran',
+        'keterangan',
     ];
 
     protected $casts = [
