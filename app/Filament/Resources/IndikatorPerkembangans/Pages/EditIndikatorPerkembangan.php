@@ -5,6 +5,7 @@ namespace App\Filament\Resources\IndikatorPerkembangans\Pages;
 use App\Filament\Resources\IndikatorPerkembangans\IndikatorPerkembanganResource;
 use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Actions\Action;
 
 class EditIndikatorPerkembangan extends EditRecord
 {
@@ -13,7 +14,20 @@ class EditIndikatorPerkembangan extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make(),
+            DeleteAction::make()
+                ->label('Hapus'),
         ];
+    }
+
+    protected function getSaveFormAction(): Action
+    {
+        return parent::getSaveFormAction()
+            ->label('Simpan');
+    }
+
+    protected function getCancelFormAction(): Action
+    {
+        return parent::getCancelFormAction()
+            ->label('Batal');
     }
 }

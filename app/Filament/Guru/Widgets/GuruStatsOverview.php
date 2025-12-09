@@ -73,7 +73,7 @@ class GuruStatsOverview extends BaseWidget
                 ->columnSpan(3),
 
             Stat::make('Total siswa', $totalSiswa)
-                ->description('Akumulasi seluruh kelas')
+                ->description('Jumlah Siswa')
                 ->color('success')
                 ->icon('heroicon-o-users')
                 ->extraAttributes([
