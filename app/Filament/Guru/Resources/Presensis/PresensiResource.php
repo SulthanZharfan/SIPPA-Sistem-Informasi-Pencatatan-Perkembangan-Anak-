@@ -26,6 +26,7 @@ class PresensiResource extends Resource
     protected static ?string $navigationLabel = 'Presensi';
     protected static ?string $pluralModelLabel = 'Presensi';
     protected static ?string $slug = 'presensis';
+    protected static bool $shouldRegisterNavigation = false;
 
     /**
      * Guru hanya boleh melihat presensi miliknya sendiri.

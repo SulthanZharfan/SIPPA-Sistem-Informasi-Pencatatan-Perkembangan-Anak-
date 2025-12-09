@@ -24,6 +24,8 @@ class PerkembanganFisikResource extends Resource
 
     protected static string | BackedEnum | null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
+    protected static bool $shouldRegisterNavigation = false; // disembunyikan, pakai pertemuan-perkembangan-fisik
+
     protected static string | UnitEnum | null $navigationGroup = 'Pencatatan';
     protected static ?string $navigationLabel = 'Perkembangan Fisik';
     protected static ?string $pluralModelLabel = 'Perkembangan Fisik';
