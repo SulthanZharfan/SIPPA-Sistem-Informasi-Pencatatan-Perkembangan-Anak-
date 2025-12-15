@@ -3,6 +3,7 @@
 namespace App\Filament\Guru\Resources\PertemuanPerkembanganFisiks\Pages;
 
 use App\Filament\Guru\Resources\PertemuanPerkembanganFisiks\PertemuanPerkembanganFisikResource;
+use App\Filament\Guru\Resources\PerkembanganFisiks\Schemas\PerkembanganFisikForm;
 use App\Models\PerkembanganFisik;
 use App\Models\PertemuanPerkembanganFisik;
 use BackedEnum;
@@ -97,11 +98,31 @@ class KelolaPerkembanganFisik extends Page implements Forms\Contracts\HasForms
                                     ->label('Tanggal Ukur')
                                     ->native(false)
                                     ->default(fn () => $this->record->tanggal)
+                                    ->reactive()
+                                    ->afterStateHydrated(function ($state, callable $set, callable $get) {
+                                        $set(
+                                            'umur_bulan',
+                                            PerkembanganFisikForm::calculateUmurBulan(
+                                                $get('siswa_id'),
+                                                $state,
+                                            )
+                                        );
+                                    })
+                                    ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                                        $set(
+                                            'umur_bulan',
+                                            PerkembanganFisikForm::calculateUmurBulan(
+                                                $get('siswa_id'),
+                                                $state,
+                                            )
+                                        );
+                                    })
                                     ->columnSpan(4),
 
                                 TextInput::make('umur_bulan')
                                     ->label('Umur (bulan)')
                                     ->numeric()
+                                    ->readOnly()
                                     ->columnSpan(4),
 
                                 TextInput::make('tinggi_badan')
@@ -173,7 +194,10 @@ class KelolaPerkembanganFisik extends Page implements Forms\Contracts\HasForms
                 'siswa_id'       => $siswa->id,
                 'nama'           => $siswa->nama,
                 'tanggal_ukur'   => $existing?->tanggal_ukur ?? $this->record->tanggal,
-                'umur_bulan'     => $existing?->umur_bulan,
+                'umur_bulan'     => PerkembanganFisikForm::calculateUmurBulan(
+                    $siswa->id,
+                    $existing?->tanggal_ukur ?? $this->record->tanggal,
+                ),
                 'tinggi_badan'   => $existing?->tinggi_badan,
                 'berat_badan'    => $existing?->berat_badan,
                 'lingkar_kepala' => $existing?->lingkar_kepala,
@@ -201,7 +225,10 @@ class KelolaPerkembanganFisik extends Page implements Forms\Contracts\HasForms
                     'guru_id'          => $this->record->guru_id,
                     'tahun_ajaran_id'  => $this->record->tahun_ajaran_id,
                     'tanggal_ukur'     => $row['tanggal_ukur'] ?? $this->record->tanggal,
-                    'umur_bulan'       => $row['umur_bulan'],
+                    'umur_bulan'       => PerkembanganFisikForm::calculateUmurBulan(
+                        $row['siswa_id'],
+                        $row['tanggal_ukur'] ?? $this->record->tanggal,
+                    ),
                     'tinggi_badan'     => $row['tinggi_badan'],
                     'berat_badan'      => $row['berat_badan'],
                     'lingkar_kepala'   => $row['lingkar_kepala'],

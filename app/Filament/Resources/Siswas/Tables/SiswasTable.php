@@ -27,6 +27,11 @@ class SiswasTable
                     ->badge()
                     ->formatStateUsing(fn (string $state): string => $state === 'L' ? 'Laki-laki' : 'Perempuan'),
 
+                TextColumn::make('tempat_lahir')
+                    ->label('Tempat Lahir')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('tanggal_lahir')
                     ->label('Tanggal Lahir')
                     ->date()

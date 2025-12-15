@@ -24,6 +24,11 @@ class SiswaForm
                     ->required()
                     ->maxLength(255),
 
+                TextInput::make('tempat_lahir')
+                    ->label('Tempat Lahir')
+                    ->maxLength(255)
+                    ->columnSpan(1),
+
                 Select::make('jenis_kelamin')
                     ->label('Jenis Kelamin')
                     ->options([

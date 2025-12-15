@@ -67,21 +67,21 @@ Semua dikelola menggunakan Filament v4 Multi-Panel.
 # 5. Panel Guru – Filament Panel
 
 ### Perkembangan Fisik
-- [ ] Input data fisik  
+- [x] Input data fisik  
 - [ ] Hitung status TB/BB/LK otomatis  
 - [ ] Status total otomatis  
 - [ ] Rekomendasi otomatis  
 - [ ] Grafik perkembangan fisik  
 
 ### Perkembangan Kognitif
-- [ ] Input narasi + upload foto  
-- [ ] Pemilihan indikator  
-- [ ] Status menunggu / revisi / disetujui  
-- [ ] Edit data revisi  
+- [x] Input narasi + upload foto  
+- [x] Pemilihan indikator  
+- [x] Status menunggu / revisi / disetujui  
+- [x] Edit data revisi  
 
 ### Presensi
-- [ ] Input presensi harian  
-- [ ] Rekap harian/mingguan/bulanan  
+- [x] Input presensi harian  
+- [x] Rekap harian/mingguan/bulanan  
 
 ---
 

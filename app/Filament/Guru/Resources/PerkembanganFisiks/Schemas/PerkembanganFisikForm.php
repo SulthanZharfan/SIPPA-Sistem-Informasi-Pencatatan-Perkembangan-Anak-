@@ -2,7 +2,9 @@
 
 namespace App\Filament\Guru\Resources\PerkembanganFisiks\Schemas;
 
+use App\Models\Siswa;
 use App\Models\TahunAjaran;
+use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
@@ -34,7 +36,11 @@ class PerkembanganFisikForm
                         )
                         ->searchable()
                         ->preload()
-                        ->required(),
+                        ->required()
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                            self::syncUmurBulan($set, $get);
+                        }),
                 ]),
 
                 Grid::make(3)->schema([
@@ -60,11 +66,20 @@ class PerkembanganFisikForm
                 Grid::make(2)->schema([
                     DatePicker::make('tanggal_ukur')
                         ->label('Tanggal Ukur')
-                        ->required(),
+                        ->required()
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                            self::syncUmurBulan($set, $get);
+                        }),
 
                     TextInput::make('umur_bulan')
                         ->label('Umur (bulan)')
                         ->numeric()
+                        ->afterStateHydrated(function ($state, callable $set, callable $get) {
+                            // Pastikan umur terisi ulang saat form dibuka/di-edit.
+                            $set('umur_bulan', self::calculateUmurBulan($get('siswa_id'), $get('tanggal_ukur')));
+                        })
+                        ->readOnly()
                         ->required(),
                 ]),
 
@@ -84,5 +99,40 @@ class PerkembanganFisikForm
                 Hidden::make('status_persetujuan')
                     ->default('menunggu'),
             ]);
+    }
+
+    /**
+     * Hitung dan set umur dalam bulan berdasarkan siswa & tanggal ukur.
+     */
+    protected static function syncUmurBulan(callable $set, callable $get): void
+    {
+        $umur = self::calculateUmurBulan($get('siswa_id'), $get('tanggal_ukur'));
+
+        $set('umur_bulan', $umur);
+    }
+
+    /**
+     * Hitung umur dalam bulan, null jika data tidak valid.
+     */
+    public static function calculateUmurBulan(?int $siswaId, $tanggalUkur): ?int
+    {
+        if (!$siswaId || !$tanggalUkur) {
+            return null;
+        }
+
+        $siswa = Siswa::find($siswaId);
+
+        if (!$siswa?->tanggal_lahir) {
+            return null;
+        }
+
+        $ukur = Carbon::parse($tanggalUkur);
+        $lahir = Carbon::parse($siswa->tanggal_lahir);
+
+        if ($ukur->lt($lahir)) {
+            return null;
+        }
+
+        return $lahir->diffInMonths($ukur);
     }
 }
