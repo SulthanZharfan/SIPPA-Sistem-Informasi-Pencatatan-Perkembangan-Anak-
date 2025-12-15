@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Observers\PerkembanganFisikObserver;
 
 class PerkembanganFisik extends Model
 {
@@ -32,6 +33,7 @@ class PerkembanganFisik extends Model
         'kategori_bb',
         'kategori_tb',
         'kategori_lk',
+        'status_ringkas',
     ];
 
     // PER PERTEMUAN 
@@ -56,5 +58,10 @@ class PerkembanganFisik extends Model
     public function tahunAjaran()
     {
         return $this->belongsTo(TahunAjaran::class, 'tahun_ajaran_id');
+    }
+
+    protected static function booted(): void
+    {
+        static::observe(PerkembanganFisikObserver::class);
     }
 }
