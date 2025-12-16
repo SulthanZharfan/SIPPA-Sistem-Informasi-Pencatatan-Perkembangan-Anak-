@@ -6,7 +6,10 @@ use App\Filament\Guru\Resources\PertemuanPerkembanganFisiks\PertemuanPerkembanga
 use App\Filament\Guru\Resources\PerkembanganFisiks\Schemas\PerkembanganFisikForm;
 use App\Models\PerkembanganFisik;
 use App\Models\PertemuanPerkembanganFisik;
+use App\Services\StandarFisikCalculator;
 use BackedEnum;
+use Closure;
+use Illuminate\Support\HtmlString;
 use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
@@ -87,6 +90,11 @@ class KelolaPerkembanganFisik extends Page implements Forms\Contracts\HasForms
                             ->columns(12)
                             ->schema([
                                 Hidden::make('siswa_id'),
+                                Hidden::make('jenis_kelamin')->dehydrated(false),
+                                Hidden::make('preview_status_ringkas')->dehydrated(false),
+                                Hidden::make('preview_kategori_tb')->dehydrated(false),
+                                Hidden::make('preview_kategori_bb')->dehydrated(false),
+                                Hidden::make('preview_kategori_lk')->dehydrated(false),
 
                                 TextInput::make('nama')
                                     ->label('Nama Siswa')
@@ -116,6 +124,7 @@ class KelolaPerkembanganFisik extends Page implements Forms\Contracts\HasForms
                                                 $state,
                                             )
                                         );
+                                        self::previewHasilOtomatis($set, $get);
                                     })
                                     ->columnSpan(4),
 
@@ -130,6 +139,8 @@ class KelolaPerkembanganFisik extends Page implements Forms\Contracts\HasForms
                                     ->numeric()
                                     ->step(0.1)
                                     ->required()
+                                    ->live(debounce: 500)
+                                    ->afterStateUpdated(fn ($state, $set, $get) => self::previewHasilOtomatis($set, $get))
                                     ->columnSpan(4),
 
                                 TextInput::make('berat_badan')
@@ -137,13 +148,44 @@ class KelolaPerkembanganFisik extends Page implements Forms\Contracts\HasForms
                                     ->numeric()
                                     ->step(0.1)
                                     ->required()
+                                    ->live(debounce: 500)
+                                    ->afterStateUpdated(fn ($state, $set, $get) => self::previewHasilOtomatis($set, $get))
                                     ->columnSpan(4),
 
                                 TextInput::make('lingkar_kepala')
                                     ->label('Lingkar Kepala (cm)')
                                     ->numeric()
                                     ->step(0.1)
+                                    ->live(debounce: 500)
+                                    ->afterStateUpdated(fn ($state, $set, $get) => self::previewHasilOtomatis($set, $get))
                                     ->columnSpan(4),
+
+                                Placeholder::make('hasil_otomatis')
+                                    ->label('Hasil Otomatis')
+                                    ->dehydrated(false)
+                                    ->columnSpan(12)
+                                    ->content(function ($get) {
+                                        $status = $get('preview_status_ringkas') ?? $get('status_ringkas') ?? null;
+                                        $tb = $get('preview_kategori_tb') ?? $get('kategori_tb') ?? null;
+                                        $bb = $get('preview_kategori_bb') ?? $get('kategori_bb') ?? null;
+                                        $lk = $get('preview_kategori_lk') ?? $get('kategori_lk') ?? null;
+
+                                        $pretty = fn (?string $value) => match ($value) {
+                                            'normal' => 'Normal',
+                                            'tidak_normal' => 'Perlu Perhatian',
+                                            'perlu_perhatian' => 'Perlu Perhatian',
+                                            default => ucfirst($value ?? '-'),
+                                        };
+
+                                        return new HtmlString(
+                                            '<div class="rounded-lg border border-slate-200 bg-white px-4 py-3 space-y-1.5 text-sm text-slate-800">' .
+                                                '<div>Status - ' . $pretty($status) . '</div>' .
+                                                '<div>TB - ' . $pretty($tb) . '</div>' .
+                                                '<div>BB - ' . $pretty($bb) . '</div>' .
+                                                '<div>LK - ' . $pretty($lk) . '</div>' .
+                                            '</div>'
+                                        );
+                                    }),
 
                                 FileUpload::make('foto')
                                     ->label('Foto (opsional)')
@@ -193,6 +235,7 @@ class KelolaPerkembanganFisik extends Page implements Forms\Contracts\HasForms
             return [
                 'siswa_id'       => $siswa->id,
                 'nama'           => $siswa->nama,
+                'jenis_kelamin'  => $siswa->jenis_kelamin,
                 'tanggal_ukur'   => $existing?->tanggal_ukur ?? $this->record->tanggal,
                 'umur_bulan'     => PerkembanganFisikForm::calculateUmurBulan(
                     $siswa->id,
@@ -202,6 +245,14 @@ class KelolaPerkembanganFisik extends Page implements Forms\Contracts\HasForms
                 'berat_badan'    => $existing?->berat_badan,
                 'lingkar_kepala' => $existing?->lingkar_kepala,
                 'foto'           => $existing?->foto,
+                'status_ringkas' => $existing?->status_ringkas,
+                'kategori_tb'    => $existing?->kategori_tb,
+                'kategori_bb'    => $existing?->kategori_bb,
+                'kategori_lk'    => $existing?->kategori_lk,
+                'preview_status_ringkas' => $existing?->status_ringkas,
+                'preview_kategori_tb'    => $existing?->kategori_tb,
+                'preview_kategori_bb'    => $existing?->kategori_bb,
+                'preview_kategori_lk'    => $existing?->kategori_lk,
             ];
         })->toArray();
     }
@@ -281,5 +332,36 @@ class KelolaPerkembanganFisik extends Page implements Forms\Contracts\HasForms
                 ->icon('heroicon-o-arrow-left')
                 ->url(PertemuanPerkembanganFisikResource::getUrl()),
         ];
+    }
+
+    private static function previewHasilOtomatis($set, $get): void
+    {
+        $tinggi = $get('tinggi_badan');
+        $berat = $get('berat_badan');
+        $lk = $get('lingkar_kepala');
+        $umur = $get('umur_bulan');
+        $jenisKelamin = $get('jenis_kelamin');
+
+        // jika input penting belum ada, kosongkan preview
+        if ($tinggi === null || $berat === null || $jenisKelamin === null || $umur === null) {
+            $set('preview_status_ringkas', null);
+            $set('preview_kategori_tb', null);
+            $set('preview_kategori_bb', null);
+            $set('preview_kategori_lk', null);
+            return;
+        }
+
+        $result = app(StandarFisikCalculator::class)->preview([
+            'jenis_kelamin' => $jenisKelamin,
+            'umur_bulan' => (int) $umur,
+            'tinggi_badan' => $tinggi,
+            'berat_badan' => $berat,
+            'lingkar_kepala' => $lk,
+        ]);
+
+        $set('preview_status_ringkas', $result['status_ringkas'] ?? null);
+        $set('preview_kategori_tb', $result['kategori_tb'] ?? null);
+        $set('preview_kategori_bb', $result['kategori_bb'] ?? null);
+        $set('preview_kategori_lk', $result['kategori_lk'] ?? null);
     }
 }
