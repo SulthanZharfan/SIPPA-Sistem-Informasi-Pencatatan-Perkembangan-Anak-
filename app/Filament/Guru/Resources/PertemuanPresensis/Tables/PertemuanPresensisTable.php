@@ -13,12 +13,19 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class PertemuanPresensisTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->withCount([
+                'presensis as presensi_hadir_count' => fn ($q) => $q->where('status_kehadiran', 'hadir'),
+                'presensis as presensi_alfa_count' => fn ($q) => $q->where('status_kehadiran', 'alfa'),
+                'presensis as presensi_izin_count' => fn ($q) => $q->where('status_kehadiran', 'izin'),
+                'presensis as presensi_sakit_count' => fn ($q) => $q->where('status_kehadiran', 'sakit'),
+            ]))
             ->searchPlaceholder('Cari kelas / pertemuan / tanggal')
             ->columns([
                 TextColumn::make('kelas.nama')
@@ -50,6 +57,24 @@ class PertemuanPresensisTable
                     ->label('Selesai')
                     ->time('H:i')
                     ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('ringkasan_presensi')
+                    ->label('Ringkasan')
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        $hadir = (int) ($record->presensi_hadir_count ?? 0);
+                        $alfa = (int) ($record->presensi_alfa_count ?? 0);
+                        $izin = (int) ($record->presensi_izin_count ?? 0);
+                        $sakit = (int) ($record->presensi_sakit_count ?? 0);
+
+                        $total = $hadir + $alfa + $izin + $sakit;
+                        if ($total === 0) {
+                            return 'Belum ada data';
+                        }
+
+                        return "Hadir: {$hadir} | Alfa: {$alfa} | Izin: {$izin} | Sakit: {$sakit}";
+                    })
+                    ->toggleable(),
             ])
             ->filters([
                 SelectFilter::make('kelas_id')

@@ -12,12 +12,20 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class PertemuanPerkembanganFisiksTable
 {
     public static function configure(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->withCount([
+                'perkembanganFisiks as pf_normal_count' => fn ($q) => $q->where('status_ringkas', 'normal'),
+                'perkembanganFisiks as pf_perlu_perhatian_count' => fn ($q) => $q->where('status_ringkas', 'perlu_perhatian'),
+                'perkembanganFisiks as pf_terisi_count' => fn ($q) => $q
+                    ->whereNotNull('tinggi_badan')
+                    ->whereNotNull('berat_badan'),
+            ]))
             ->searchPlaceholder('Cari kelas / tahun ajaran / pertemuan')
             ->columns([
                 Tables\Columns\TextColumn::make('kelas.nama')
@@ -70,6 +78,22 @@ class PertemuanPerkembanganFisiksTable
                         'success' => 'approved',
                         'danger'  => 'rejected',
                     ])
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('ringkasan')
+                    ->label('Ringkasan')
+                    ->badge()
+                    ->getStateUsing(function ($record) {
+                        $normal = (int) ($record->pf_normal_count ?? 0);
+                        $perluPerhatian = (int) ($record->pf_perlu_perhatian_count ?? 0);
+                        $terisi = (int) ($record->pf_terisi_count ?? 0);
+
+                        if ($terisi === 0) {
+                            return 'Belum ada data';
+                        }
+
+                        return "Normal: {$normal} | Perlu Perhatian: {$perluPerhatian} | Terisi: {$terisi}";
+                    })
                     ->toggleable(),
             ])
             ->filters([

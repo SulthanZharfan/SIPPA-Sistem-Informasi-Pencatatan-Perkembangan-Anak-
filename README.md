@@ -68,10 +68,10 @@ Semua dikelola menggunakan Filament v4 Multi-Panel.
 
 ### Perkembangan Fisik
 - [x] Input data fisik  
-- [ ] Hitung status TB/BB/LK otomatis  
-- [ ] Status total otomatis  
-- [ ] Rekomendasi otomatis  
-- [ ] Grafik perkembangan fisik  
+- [X] Hitung status TB/BB/LK otomatis  
+- [X] Status total otomatis  
+- [X] Rekomendasi otomatis  
+- [X] Grafik perkembangan fisik  
 
 ### Perkembangan Kognitif
 - [x] Input narasi + upload foto  
