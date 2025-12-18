@@ -10,19 +10,13 @@ class BackfillPerkembanganFisik extends Command
 {
     protected $signature = 'sippa:backfill-fisik';
 
-    protected $description = 'Mengisi standar_id, kategori_tb/bb/lk, dan status_ringkas untuk data perkembangan fisik yang masih null';
+    protected $description = 'Hitung ulang standar_id, kategori_tb/bb/lk, dan status_ringkas untuk seluruh data perkembangan fisik';
 
     public function handle(): int
     {
         $calculator = app(StandarFisikCalculator::class);
 
         $query = PerkembanganFisik::query()
-            ->where(function ($q) {
-                $q->whereNull('standar_id')
-                    ->orWhereNull('kategori_tb')
-                    ->orWhereNull('kategori_bb')
-                    ->orWhereNull('status_ringkas');
-            })
             ->with('siswa'); // untuk menghindari N+1 saat kalkulasi
 
         $total = $query->count();

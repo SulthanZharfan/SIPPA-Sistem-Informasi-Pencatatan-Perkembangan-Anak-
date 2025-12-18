@@ -11,6 +11,11 @@ class ViewPertemuanPerkembanganFisik extends ViewRecord
 {
     protected static string $resource = PertemuanPerkembanganFisikResource::class;
 
+    public function getHeading(): string
+    {
+        return 'Detail Pertemuan';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

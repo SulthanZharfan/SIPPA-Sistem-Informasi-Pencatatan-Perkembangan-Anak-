@@ -172,7 +172,12 @@ class KelolaPerkembanganFisik extends Page implements Forms\Contracts\HasForms
 
                                         $pretty = fn (?string $value) => match ($value) {
                                             'normal' => 'Normal',
-                                            'tidak_normal' => 'Perlu Perhatian',
+                                            'pendek' => 'Pendek',
+                                            'tinggi' => 'Tinggi',
+                                            'kurang' => 'Kurang',
+                                            'lebih' => 'Lebih',
+                                            'kecil' => 'Kecil',
+                                            'besar' => 'Besar',
                                             'perlu_perhatian' => 'Perlu Perhatian',
                                             default => ucfirst($value ?? '-'),
                                         };

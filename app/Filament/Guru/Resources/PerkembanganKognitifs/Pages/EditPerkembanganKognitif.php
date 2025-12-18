@@ -11,6 +11,11 @@ class EditPerkembanganKognitif extends EditRecord
 {
     protected static string $resource = PerkembanganKognitifResource::class;
 
+    public function getHeading(): string
+    {
+        return 'Edit Perkembangan Kognitif';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

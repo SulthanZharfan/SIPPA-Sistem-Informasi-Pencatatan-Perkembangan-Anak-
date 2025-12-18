@@ -52,30 +52,38 @@ class StandarFisikCalculator
 
         $standarId = $standar->id;
 
-        // Kategori TB
-        if ($pf->tinggi_badan < $standar->tb_min || $pf->tinggi_badan > $standar->tb_max) {
-            $kategoriTb = 'tidak_normal';
-        } else {
-            $kategoriTb = 'normal';
-        }
+        // Kategori TB (pendek/normal/tinggi)
+        $kategoriTb = $this->kategoriTigaLevel(
+            nilai: $pf->tinggi_badan,
+            normalMin: $standar->tb_min,
+            normalMax: $standar->tb_max,
+            rendah: 'pendek',
+            tinggi: 'tinggi',
+        );
 
-        // Kategori BB
-        if ($pf->berat_badan < $standar->bb_min || $pf->berat_badan > $standar->bb_max) {
-            $kategoriBb = 'tidak_normal';
-        } else {
-            $kategoriBb = 'normal';
-        }
+        // Kategori BB (kurang/normal/lebih)
+        $kategoriBb = $this->kategoriTigaLevel(
+            nilai: $pf->berat_badan,
+            normalMin: $standar->bb_min,
+            normalMax: $standar->bb_max,
+            rendah: 'kurang',
+            tinggi: 'lebih',
+        );
 
-        // Kategori LK
+        // Kategori LK (kecil/normal/besar) — tetap boleh null jika standar tidak ada
         if (is_null($pf->lingkar_kepala) || is_null($standar->lk_min) || is_null($standar->lk_max)) {
             $kategoriLk = null;
-        } elseif ($pf->lingkar_kepala < $standar->lk_min || $pf->lingkar_kepala > $standar->lk_max) {
-            $kategoriLk = 'tidak_normal';
         } else {
-            $kategoriLk = 'normal';
+            $kategoriLk = $this->kategoriTigaLevel(
+                nilai: $pf->lingkar_kepala,
+                normalMin: $standar->lk_min,
+                normalMax: $standar->lk_max,
+                rendah: 'kecil',
+                tinggi: 'besar',
+            );
         }
 
-        // Status ringkas
+        // Status ringkas: normal hanya jika semua kategori normal (LK boleh null)
         $statusRingkas = ($kategoriTb === 'normal'
             && $kategoriBb === 'normal'
             && ($kategoriLk === 'normal' || $kategoriLk === null))
@@ -124,27 +132,35 @@ class StandarFisikCalculator
 
         $standarId = $standar->id;
 
-        // Kategori TB
-        if ($tinggiBadan < $standar->tb_min || $tinggiBadan > $standar->tb_max) {
-            $kategoriTb = 'tidak_normal';
-        } else {
-            $kategoriTb = 'normal';
-        }
+        // Kategori TB (pendek/normal/tinggi)
+        $kategoriTb = $this->kategoriTigaLevel(
+            nilai: $tinggiBadan,
+            normalMin: $standar->tb_min,
+            normalMax: $standar->tb_max,
+            rendah: 'pendek',
+            tinggi: 'tinggi',
+        );
 
-        // Kategori BB
-        if ($beratBadan < $standar->bb_min || $beratBadan > $standar->bb_max) {
-            $kategoriBb = 'tidak_normal';
-        } else {
-            $kategoriBb = 'normal';
-        }
+        // Kategori BB (kurang/normal/lebih)
+        $kategoriBb = $this->kategoriTigaLevel(
+            nilai: $beratBadan,
+            normalMin: $standar->bb_min,
+            normalMax: $standar->bb_max,
+            rendah: 'kurang',
+            tinggi: 'lebih',
+        );
 
-        // Kategori LK
+        // Kategori LK (kecil/normal/besar) — tetap boleh null jika standar tidak ada
         if ($lingkarKepala === null || is_null($standar->lk_min) || is_null($standar->lk_max)) {
             $kategoriLk = null;
-        } elseif ($lingkarKepala < $standar->lk_min || $lingkarKepala > $standar->lk_max) {
-            $kategoriLk = 'tidak_normal';
         } else {
-            $kategoriLk = 'normal';
+            $kategoriLk = $this->kategoriTigaLevel(
+                nilai: $lingkarKepala,
+                normalMin: $standar->lk_min,
+                normalMax: $standar->lk_max,
+                rendah: 'kecil',
+                tinggi: 'besar',
+            );
         }
 
         $statusRingkas = ($kategoriTb === 'normal'
@@ -160,5 +176,26 @@ class StandarFisikCalculator
             'kategori_lk' => $kategoriLk,
             'status_ringkas' => $statusRingkas,
         ];
+    }
+
+    /**
+     * Helper: hitung kategori tiga level berdasarkan batas normal bawah/atas.
+     */
+    protected function kategoriTigaLevel(
+        float | int $nilai,
+        float | int $normalMin,
+        float | int $normalMax,
+        string $rendah,
+        string $tinggi,
+    ): string {
+        if ($nilai < $normalMin) {
+            return $rendah;
+        }
+
+        if ($nilai > $normalMax) {
+            return $tinggi;
+        }
+
+        return 'normal';
     }
 }

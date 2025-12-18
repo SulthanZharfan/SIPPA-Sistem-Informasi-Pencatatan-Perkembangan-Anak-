@@ -11,6 +11,11 @@ class EditPertemuanPerkembanganFisik extends EditRecord
 {
     protected static string $resource = PertemuanPerkembanganFisikResource::class;
 
+    public function getHeading(): string
+    {
+        return 'Edit Pertemuan';
+    }
+
     protected function getHeaderActions(): array
     {
         return [
