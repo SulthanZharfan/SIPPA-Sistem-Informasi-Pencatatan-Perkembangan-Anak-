@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use App\Observers\PerkembanganFisikObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Observers\PerkembanganFisikObserver;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PerkembanganFisik extends Model
 {
@@ -13,51 +14,51 @@ class PerkembanganFisik extends Model
     protected $table = 'perkembangan_fisiks';
 
     protected $fillable = [
-        // Relasi kunci
         'pertemuan_perkembangan_fisik_id',
         'siswa_id',
         'guru_id',
         'tahun_ajaran_id',
-
-        // Data fisik
+        'standar_id',
         'tinggi_badan',
         'berat_badan',
         'lingkar_kepala',
-        'umur_bulan',
         'tanggal_ukur',
-
-        // Foto perkembangan
+        'umur_bulan',
         'foto',
-
-        // Kategori fisik
-        'kategori_bb',
         'kategori_tb',
+        'kategori_bb',
         'kategori_lk',
-        'status_ringkas',
+        'status_ringkas',      // normal|perlu_perhatian
+        'status_persetujuan',  // menunggu|disetujui|revisi
     ];
 
-    // PER PERTEMUAN 
-    public function pertemuan()
+    protected $casts = [
+        'tanggal_ukur' => 'date',
+    ];
+
+    public function pertemuan(): BelongsTo
     {
         return $this->belongsTo(PertemuanPerkembanganFisik::class, 'pertemuan_perkembangan_fisik_id');
     }
 
-    // SISWA
-    public function siswa()
+    public function siswa(): BelongsTo
     {
         return $this->belongsTo(Siswa::class, 'siswa_id');
     }
 
-    // GURU
-    public function guru()
+    public function guru(): BelongsTo
     {
         return $this->belongsTo(Guru::class, 'guru_id');
     }
 
-    // TAHUN AJARAN
-    public function tahunAjaran()
+    public function tahunAjaran(): BelongsTo
     {
         return $this->belongsTo(TahunAjaran::class, 'tahun_ajaran_id');
+    }
+
+    public function standar(): BelongsTo
+    {
+        return $this->belongsTo(DataStandarFisik::class, 'standar_id');
     }
 
     protected static function booted(): void
