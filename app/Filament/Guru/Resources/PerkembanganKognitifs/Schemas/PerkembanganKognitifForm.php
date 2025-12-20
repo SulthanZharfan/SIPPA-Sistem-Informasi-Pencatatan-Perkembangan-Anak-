@@ -45,7 +45,7 @@ class PerkembanganKognitifForm
 
                 Textarea::make('narasi')
                     ->label('Narasi Perkembangan')
-                    ->rows(5)
+                    ->rows(10)
                     ->required()
                     ->columnSpanFull(),
 

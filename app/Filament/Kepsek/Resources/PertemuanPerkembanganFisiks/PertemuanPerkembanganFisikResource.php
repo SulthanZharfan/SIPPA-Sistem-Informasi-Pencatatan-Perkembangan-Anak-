@@ -56,6 +56,12 @@ class PertemuanPerkembanganFisikResource extends Resource
                     TextEntry::make('status')
                         ->label('Status')
                         ->badge()
+                        ->formatStateUsing(fn (?string $state) => match ($state) {
+                            'approved' => 'Disetujui',
+                            'rejected' => 'Ditolak',
+                            'pending' => 'Menunggu',
+                            default => $state ?? '-',
+                        })
                         ->colors([
                             'warning' => 'pending',
                             'success' => 'approved',
@@ -63,7 +69,7 @@ class PertemuanPerkembanganFisikResource extends Resource
                         ]),
 
                     TextEntry::make('approved_at')
-                        ->label('Approved at')
+                        ->label('Disetujui pada')
                         ->dateTime('d M Y H:i')
                         ->placeholder('-'),
                 ])
@@ -111,6 +117,12 @@ class PertemuanPerkembanganFisikResource extends Resource
 
                 Tables\Columns\BadgeColumn::make('status')
                     ->label('Status')
+                    ->formatStateUsing(fn (?string $state) => match ($state) {
+                        'approved' => 'Disetujui',
+                        'rejected' => 'Ditolak',
+                        'pending' => 'Menunggu',
+                        default => $state ?? '-',
+                    })
                     ->colors([
                         'warning' => 'pending',
                         'success' => 'approved',
@@ -118,7 +130,7 @@ class PertemuanPerkembanganFisikResource extends Resource
                     ]),
 
                 Tables\Columns\TextColumn::make('approved_at')
-                    ->label('Approved at')
+                    ->label('Disetujui pada')
                     ->dateTime('d M Y H:i')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
@@ -126,16 +138,16 @@ class PertemuanPerkembanganFisikResource extends Resource
                 Tables\Filters\SelectFilter::make('status')
                     ->label('Status')
                     ->options([
-                        'pending' => 'Pending',
-                        'approved' => 'Approved',
-                        'rejected' => 'Rejected',
+                        'pending' => 'Menunggu',
+                        'approved' => 'Disetujui',
+                        'rejected' => 'Ditolak',
                     ]),
             ])
             ->actions([
                 Actions\ViewAction::make()->label('Detail'),
 
                 Actions\Action::make('approve')
-                    ->label('Approve')
+                    ->label('Setujui')
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->visible(fn (PertemuanPerkembanganFisik $record) => $record->status !== 'approved')

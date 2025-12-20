@@ -48,6 +48,12 @@ class PerkembanganKognitifsTable
                 TextColumn::make('status_persetujuan')
                     ->label('Status')
                     ->badge()
+                    ->formatStateUsing(fn (?string $state) => match ($state) {
+                        'disetujui' => 'Disetujui',
+                        'revisi' => 'Revisi',
+                        'menunggu' => 'Menunggu',
+                        default => $state ?? '-',
+                    })
                     ->colors([
                         'warning' => 'menunggu',
                         'success' => 'disetujui',

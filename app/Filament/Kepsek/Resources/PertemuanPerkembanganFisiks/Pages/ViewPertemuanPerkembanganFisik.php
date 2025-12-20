@@ -20,7 +20,7 @@ class ViewPertemuanPerkembanganFisik extends ViewRecord
     {
         return [
             Actions\Action::make('approve')
-                ->label('Approve')
+                ->label('Setujui')
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
                 ->visible(fn () => $this->record->status !== 'approved')

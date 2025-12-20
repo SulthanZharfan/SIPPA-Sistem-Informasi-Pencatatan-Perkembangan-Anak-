@@ -10,6 +10,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Grouping\Group;
 use Filament\Infolists\Components\TextEntry;
 use BackedEnum;
 
@@ -46,6 +47,11 @@ class SiswaResource extends Resource
         return $table
             ->defaultSort('nama', 'asc')
             ->columns([
+                Tables\Columns\TextColumn::make('kelas.nama')
+                    ->label('Kelas')
+                    ->badge()
+                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('nama')
                     ->label('Nama')
                     ->searchable()
@@ -56,6 +62,10 @@ class SiswaResource extends Resource
                     ->dateTime('d M Y H:i')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->groups([
+                Group::make('kelas.nama')->label('Kelas'),
+            ])
+            ->defaultGroup('kelas.nama')
             ->actions([
                 Actions\ViewAction::make()->label('Detail'),
             ])
