@@ -4,10 +4,10 @@ namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\UserResource;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecordRedirect;
 use Filament\Actions\Action;
 
-class EditUser extends EditRecord
+class EditUser extends EditRecordRedirect
 {
     protected static string $resource = UserResource::class;
 
@@ -31,3 +31,4 @@ class EditUser extends EditRecord
             ->label('Batal');
     }
 }
+

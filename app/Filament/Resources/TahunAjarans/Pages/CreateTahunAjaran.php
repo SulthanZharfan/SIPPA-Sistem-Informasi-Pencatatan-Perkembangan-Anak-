@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\TahunAjarans\Pages;
 
 use App\Filament\Resources\TahunAjarans\TahunAjaranResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecordRedirect;
 use Filament\Actions\Action;
 
-class CreateTahunAjaran extends CreateRecord
+class CreateTahunAjaran extends CreateRecordRedirect
 {
     protected static string $resource = TahunAjaranResource::class;
 
@@ -28,3 +28,4 @@ class CreateTahunAjaran extends CreateRecord
             ->label('Batal');
     }
 }
+

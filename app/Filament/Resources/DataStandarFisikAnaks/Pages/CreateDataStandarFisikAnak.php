@@ -4,9 +4,9 @@ namespace App\Filament\Resources\DataStandarFisikAnaks\Pages;
 
 use App\Filament\Resources\DataStandarFisikAnaks\DataStandarFisikAnakResource;
 use Filament\Actions\Action;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecordRedirect;
 
-class CreateDataStandarFisikAnak extends CreateRecord
+class CreateDataStandarFisikAnak extends CreateRecordRedirect
 {
     protected static string $resource = DataStandarFisikAnakResource::class;
 
@@ -28,3 +28,4 @@ class CreateDataStandarFisikAnak extends CreateRecord
             ->label('Batal');
     }
 }
+

@@ -4,10 +4,10 @@ namespace App\Filament\Resources\Gurus\Pages;
 
 use App\Filament\Resources\Gurus\GuruResource;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecordRedirect;
 use Filament\Actions\Action;
 
-class EditGuru extends EditRecord
+class EditGuru extends EditRecordRedirect
 {
     protected static string $resource = GuruResource::class;
 
@@ -31,3 +31,4 @@ class EditGuru extends EditRecord
             ->label('Batal');
     }
 }
+

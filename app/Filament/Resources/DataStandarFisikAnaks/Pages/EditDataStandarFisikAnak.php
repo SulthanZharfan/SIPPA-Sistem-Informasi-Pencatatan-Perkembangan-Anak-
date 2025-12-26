@@ -4,10 +4,10 @@ namespace App\Filament\Resources\DataStandarFisikAnaks\Pages;
 
 use App\Filament\Resources\DataStandarFisikAnaks\DataStandarFisikAnakResource;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecordRedirect;
 use Filament\Actions\Action;
 
-class EditDataStandarFisikAnak extends EditRecord
+class EditDataStandarFisikAnak extends EditRecordRedirect
 {
     protected static string $resource = DataStandarFisikAnakResource::class;
 
@@ -31,3 +31,4 @@ class EditDataStandarFisikAnak extends EditRecord
             ->label('Batal');
     }
 }
+

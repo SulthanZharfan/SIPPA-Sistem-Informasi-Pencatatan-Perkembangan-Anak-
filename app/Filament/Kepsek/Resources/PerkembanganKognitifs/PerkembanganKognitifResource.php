@@ -13,6 +13,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Enums\PaginationMode;
 use Illuminate\Database\Eloquent\Builder;
 use BackedEnum;
 use UnitEnum;
@@ -108,6 +109,9 @@ class PerkembanganKognitifResource extends Resource
     {
         return $table
             ->defaultSort('created_at', 'desc')
+            ->paginationMode(PaginationMode::Default)
+            ->paginationPageOptions([10, 25, 50])
+            ->extremePaginationLinks()
             ->columns([
                 Tables\Columns\TextColumn::make('siswa.nama')
                     ->label('Siswa')
@@ -118,7 +122,7 @@ class PerkembanganKognitifResource extends Resource
                 Tables\Columns\TextColumn::make('guru.nama')
                     ->label('Guru')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('indikator.deskripsi')
+                Tables\Columns\TextColumn::make('indikator.aspek')
                     ->label('Indikator')
                     ->limit(40)
                     ->tooltip(fn ($record) => $record?->indikator?->deskripsi),

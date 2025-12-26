@@ -5,9 +5,9 @@ namespace App\Filament\Guru\Resources\PertemuanPresensis\Pages;
 use App\Filament\Guru\Resources\PertemuanPresensis\PertemuanPresensiResource;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecordRedirect;
 
-class EditPertemuanPresensi extends EditRecord
+class EditPertemuanPresensi extends EditRecordRedirect
 {
     protected static string $resource = PertemuanPresensiResource::class;
 
@@ -30,4 +30,10 @@ class EditPertemuanPresensi extends EditRecord
         return parent::getCancelFormAction()
             ->label('Batal');
     }
+
+    protected function getRedirectUrl(): ?string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
+

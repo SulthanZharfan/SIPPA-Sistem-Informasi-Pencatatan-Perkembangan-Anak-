@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Enums\PaginationMode;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use BackedEnum;
@@ -81,6 +82,9 @@ class PertemuanPerkembanganFisikResource extends Resource
     {
         return $table
             ->defaultSort('tanggal', 'desc')
+            ->paginationMode(PaginationMode::Default)
+            ->paginationPageOptions([10, 25, 50])
+            ->extremePaginationLinks()
             ->columns([
                 Tables\Columns\TextColumn::make('tanggal')
                     ->label('Tanggal')

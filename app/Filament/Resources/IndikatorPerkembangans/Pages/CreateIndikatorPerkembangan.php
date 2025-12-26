@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\IndikatorPerkembangans\Pages;
 
 use App\Filament\Resources\IndikatorPerkembangans\IndikatorPerkembanganResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecordRedirect;
 use Filament\Actions\Action;
 
-class CreateIndikatorPerkembangan extends CreateRecord
+class CreateIndikatorPerkembangan extends CreateRecordRedirect
 {
     protected static string $resource = IndikatorPerkembanganResource::class;
 
@@ -28,3 +28,4 @@ class CreateIndikatorPerkembangan extends CreateRecord
             ->label('Batal');
     }
 }
+

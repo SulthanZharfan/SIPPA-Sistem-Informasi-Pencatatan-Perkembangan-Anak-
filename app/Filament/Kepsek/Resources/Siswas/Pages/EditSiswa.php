@@ -5,9 +5,9 @@ namespace App\Filament\Kepsek\Resources\Siswas\Pages;
 use App\Filament\Kepsek\Resources\Siswas\SiswaResource;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecordRedirect;
 
-class EditSiswa extends EditRecord
+class EditSiswa extends EditRecordRedirect
 {
     protected static string $resource = SiswaResource::class;
 
@@ -19,3 +19,4 @@ class EditSiswa extends EditRecord
         ];
     }
 }
+

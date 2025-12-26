@@ -195,10 +195,7 @@ class KelolaPresensi extends Page implements Forms\Contracts\HasForms
             ->success()
             ->send();
 
-        // reload agar status terbaru masuk lagi ke form
-        $this->form->fill([
-            'presensi' => $this->generatePresensiState(),
-        ]);
+        $this->redirect(PertemuanPresensiResource::getUrl());
     }
 
     public function getTitle(): string

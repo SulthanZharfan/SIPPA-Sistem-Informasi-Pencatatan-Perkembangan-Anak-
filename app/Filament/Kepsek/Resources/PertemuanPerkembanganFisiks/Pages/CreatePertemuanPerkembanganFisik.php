@@ -3,9 +3,10 @@
 namespace App\Filament\Kepsek\Resources\PertemuanPerkembanganFisiks\Pages;
 
 use App\Filament\Kepsek\Resources\PertemuanPerkembanganFisiks\PertemuanPerkembanganFisikResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecordRedirect;
 
-class CreatePertemuanPerkembanganFisik extends CreateRecord
+class CreatePertemuanPerkembanganFisik extends CreateRecordRedirect
 {
     protected static string $resource = PertemuanPerkembanganFisikResource::class;
 }
+

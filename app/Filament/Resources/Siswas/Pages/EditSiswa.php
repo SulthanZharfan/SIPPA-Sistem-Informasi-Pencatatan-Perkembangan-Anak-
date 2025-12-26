@@ -4,10 +4,10 @@ namespace App\Filament\Resources\Siswas\Pages;
 
 use App\Filament\Resources\Siswas\SiswaResource;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecordRedirect;
 use Filament\Actions\Action;
 
-class EditSiswa extends EditRecord
+class EditSiswa extends EditRecordRedirect
 {
     protected static string $resource = SiswaResource::class;
 
@@ -31,3 +31,4 @@ class EditSiswa extends EditRecord
             ->label('Batal');
     }
 }
+

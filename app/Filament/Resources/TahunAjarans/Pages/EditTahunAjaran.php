@@ -4,10 +4,10 @@ namespace App\Filament\Resources\TahunAjarans\Pages;
 
 use App\Filament\Resources\TahunAjarans\TahunAjaranResource;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecordRedirect;
 use Filament\Actions\Action;
 
-class EditTahunAjaran extends EditRecord
+class EditTahunAjaran extends EditRecordRedirect
 {
     protected static string $resource = TahunAjaranResource::class;
 
@@ -31,3 +31,4 @@ class EditTahunAjaran extends EditRecord
             ->label('Batal');
     }
 }
+

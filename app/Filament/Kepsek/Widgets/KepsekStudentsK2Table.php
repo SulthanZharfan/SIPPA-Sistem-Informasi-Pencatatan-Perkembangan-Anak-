@@ -6,6 +6,7 @@ use App\Filament\Kepsek\Resources\Siswas\SiswaResource;
 use App\Models\Siswa;
 use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\PaginationMode;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,6 +16,15 @@ class KepsekStudentsK2Table extends TableWidget
     protected static bool $isLazy = false;
 
     protected int $defaultTableRecordsPerPage = 10;
+    protected int|string|array $columnSpan = 'full';
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->paginated(true)
+            ->paginationMode(PaginationMode::Default)
+            ->paginationPageOptions([10, 25, 50]);
+    }
 
     protected function getTableQuery(): Builder
     {

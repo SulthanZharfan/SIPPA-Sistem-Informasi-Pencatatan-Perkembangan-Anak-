@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\Users\Pages;
 
 use App\Filament\Resources\Users\UserResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecordRedirect;
 use Filament\Actions\Action;
 
-class CreateUser extends CreateRecord
+class CreateUser extends CreateRecordRedirect
 {
     protected static string $resource = UserResource::class;
 
@@ -28,3 +28,4 @@ class CreateUser extends CreateRecord
             ->label('Batal');
     }
 }
+

@@ -87,9 +87,9 @@ Semua dikelola menggunakan Filament v4 Multi-Panel.
 
 # 6. Panel Kepala Sekolah – Filament Panel
 - [x] Review & Approval perkembangan fisik  
-- [ ] Review & Approval perkembangan kognitif  
-- [ ] Lihat rekap presensi  
-- [ ] Lihat statistik perkembangan  
+- [x] Review & Approval perkembangan kognitif  
+- [x] Lihat rekap presensi  
+- [x] Lihat statistik perkembangan  
 
 ---
 
@@ -110,6 +110,7 @@ Semua dikelola menggunakan Filament v4 Multi-Panel.
 - [ ] Rekomendasi  
 - [ ] Tanda tangan kepala sekolah  
 - [ ] Export PDF  
+
 
 ---
 

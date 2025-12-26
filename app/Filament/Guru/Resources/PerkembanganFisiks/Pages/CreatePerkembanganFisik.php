@@ -5,9 +5,9 @@ namespace App\Filament\Guru\Resources\PerkembanganFisiks\Pages;
 use App\Filament\Guru\Resources\PerkembanganFisiks\PerkembanganFisikResource;
 use App\Filament\Guru\Resources\PerkembanganFisiks\Schemas\PerkembanganFisikForm;
 use Filament\Actions\Action;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecordRedirect;
 
-class CreatePerkembanganFisik extends CreateRecord
+class CreatePerkembanganFisik extends CreateRecordRedirect
 {
     protected static string $resource = PerkembanganFisikResource::class;
 
@@ -39,3 +39,4 @@ class CreatePerkembanganFisik extends CreateRecord
         return $data;
     }
 }
+

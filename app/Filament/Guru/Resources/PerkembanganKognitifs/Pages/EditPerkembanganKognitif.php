@@ -5,9 +5,9 @@ namespace App\Filament\Guru\Resources\PerkembanganKognitifs\Pages;
 use App\Filament\Guru\Resources\PerkembanganKognitifs\PerkembanganKognitifResource;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecordRedirect;
 
-class EditPerkembanganKognitif extends EditRecord
+class EditPerkembanganKognitif extends EditRecordRedirect
 {
     protected static string $resource = PerkembanganKognitifResource::class;
 
@@ -36,3 +36,4 @@ class EditPerkembanganKognitif extends EditRecord
             ->label('Batal');
     }
 }
+

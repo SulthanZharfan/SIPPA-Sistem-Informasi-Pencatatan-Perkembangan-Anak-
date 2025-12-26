@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\Siswas\Pages;
 
 use App\Filament\Resources\Siswas\SiswaResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecordRedirect;
 use Filament\Actions\Action;
 
-class CreateSiswa extends CreateRecord
+class CreateSiswa extends CreateRecordRedirect
 {
     protected static string $resource = SiswaResource::class;
 
@@ -28,3 +28,4 @@ class CreateSiswa extends CreateRecord
             ->label('Batal');
     }
 }
+

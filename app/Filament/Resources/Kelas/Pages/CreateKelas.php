@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\Kelas\Pages;
 
 use App\Filament\Resources\Kelas\KelasResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecordRedirect;
 use Filament\Actions\Action;
 
-class CreateKelas extends CreateRecord
+class CreateKelas extends CreateRecordRedirect
 {
     protected static string $resource = KelasResource::class;
 
@@ -28,3 +28,4 @@ class CreateKelas extends CreateRecord
             ->label('Batal');
     }
 }
+

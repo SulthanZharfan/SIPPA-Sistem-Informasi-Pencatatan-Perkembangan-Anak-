@@ -11,6 +11,7 @@ use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 
 class GuruStudentsTable extends TableWidget
 {
@@ -19,6 +20,12 @@ class GuruStudentsTable extends TableWidget
     protected static bool $isLazy = false;
 
     protected int $defaultTableRecordsPerPage = 8;
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->paginated(false);
+    }
 
     protected function getTableQuery(): Builder
     {
@@ -73,7 +80,7 @@ class GuruStudentsTable extends TableWidget
         return $this->buildHeadingText();
     }
 
-    private function buildHeadingText(): string
+    private function buildHeadingText(): HtmlString
     {
         $user = Auth::user()?->loadMissing('guru.kelas');
         $kelasNames = $user?->guru?->kelas
@@ -81,13 +88,13 @@ class GuruStudentsTable extends TableWidget
             : collect();
 
         if ($kelasNames->count() === 1) {
-            return 'List anak kelas '.$kelasNames->first();
+            return new HtmlString('List anak kelas '.$kelasNames->first());
         }
 
         if ($kelasNames->count() > 1) {
-            return 'List anak kelas: '.$kelasNames->join(', ');
+            return new HtmlString('List anak kelas: '.$kelasNames->join(', '));
         }
 
-        return 'List anak (belum ada kelas)';
+        return new HtmlString('List anak (belum ada kelas)');
     }
 }

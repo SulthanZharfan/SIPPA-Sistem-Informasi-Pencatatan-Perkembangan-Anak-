@@ -4,9 +4,9 @@ namespace App\Filament\Guru\Resources\Presensis\Pages;
 
 use App\Filament\Guru\Resources\Presensis\PresensiResource;
 use Filament\Actions\Action;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecordRedirect;
 
-class CreatePresensi extends CreateRecord
+class CreatePresensi extends CreateRecordRedirect
 {
     protected static string $resource = PresensiResource::class;
 
@@ -28,3 +28,4 @@ class CreatePresensi extends CreateRecord
             ->label('Batal');
     }
 }
+

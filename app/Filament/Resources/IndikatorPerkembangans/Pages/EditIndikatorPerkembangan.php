@@ -4,10 +4,10 @@ namespace App\Filament\Resources\IndikatorPerkembangans\Pages;
 
 use App\Filament\Resources\IndikatorPerkembangans\IndikatorPerkembanganResource;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecordRedirect;
 use Filament\Actions\Action;
 
-class EditIndikatorPerkembangan extends EditRecord
+class EditIndikatorPerkembangan extends EditRecordRedirect
 {
     protected static string $resource = IndikatorPerkembanganResource::class;
 
@@ -31,3 +31,4 @@ class EditIndikatorPerkembangan extends EditRecord
             ->label('Batal');
     }
 }
+

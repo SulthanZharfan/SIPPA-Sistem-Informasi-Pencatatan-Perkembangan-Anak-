@@ -4,11 +4,26 @@ namespace App\Filament\Guru\Resources\PerkembanganKognitifs\Pages;
 
 use App\Filament\Guru\Resources\PerkembanganKognitifs\PerkembanganKognitifResource;
 use Filament\Actions\Action;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecordRedirect;
 
-class CreatePerkembanganKognitif extends CreateRecord
+class CreatePerkembanganKognitif extends CreateRecordRedirect
 {
     protected static string $resource = PerkembanganKognitifResource::class;
+
+    public function getTitle(): string
+    {
+        return 'Buat Catatan Perkembangan Kognitif';
+    }
+
+    public function getHeading(): string
+    {
+        return 'Buat Catatan Perkembangan Kognitif';
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Buat Catatan';
+    }
 
     protected function getCreateFormAction(): Action
     {
@@ -28,3 +43,4 @@ class CreatePerkembanganKognitif extends CreateRecord
             ->label('Batal');
     }
 }
+

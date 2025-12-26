@@ -6,9 +6,9 @@ use App\Filament\Guru\Resources\PerkembanganFisiks\PerkembanganFisikResource;
 use App\Filament\Guru\Resources\PerkembanganFisiks\Schemas\PerkembanganFisikForm;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecordRedirect;
 
-class EditPerkembanganFisik extends EditRecord
+class EditPerkembanganFisik extends EditRecordRedirect
 {
     protected static string $resource = PerkembanganFisikResource::class;
 
@@ -42,3 +42,4 @@ class EditPerkembanganFisik extends EditRecord
         return $data;
     }
 }
+

@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\Gurus\Pages;
 
 use App\Filament\Resources\Gurus\GuruResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecordRedirect;
 use Filament\Actions\Action;
 
-class CreateGuru extends CreateRecord
+class CreateGuru extends CreateRecordRedirect
 {
     protected static string $resource = GuruResource::class;
 
@@ -28,3 +28,4 @@ class CreateGuru extends CreateRecord
             ->label('Batal');
     }
 }
+

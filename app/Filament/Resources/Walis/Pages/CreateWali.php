@@ -3,10 +3,10 @@
 namespace App\Filament\Resources\Walis\Pages;
 
 use App\Filament\Resources\Walis\WaliResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecordRedirect;
 use Filament\Actions\Action;
 
-class CreateWali extends CreateRecord
+class CreateWali extends CreateRecordRedirect
 {
     protected static string $resource = WaliResource::class;
 
@@ -28,3 +28,4 @@ class CreateWali extends CreateRecord
             ->label('Batal');
     }
 }
+

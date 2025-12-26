@@ -4,11 +4,26 @@ namespace App\Filament\Guru\Resources\PertemuanPresensis\Pages;
 
 use App\Filament\Guru\Resources\PertemuanPresensis\PertemuanPresensiResource;
 use Filament\Actions\Action;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecordRedirect;
 
-class CreatePertemuanPresensi extends CreateRecord
+class CreatePertemuanPresensi extends CreateRecordRedirect
 {
     protected static string $resource = PertemuanPresensiResource::class;
+
+    public function getTitle(): string
+    {
+        return 'Buat Pertemuan Presensi';
+    }
+
+    public function getHeading(): string
+    {
+        return 'Buat Pertemuan Presensi';
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Buat Pertemuan';
+    }
 
     protected function getCreateFormAction(): Action
     {
@@ -27,4 +42,10 @@ class CreatePertemuanPresensi extends CreateRecord
         return parent::getCancelFormAction()
             ->label('Batal');
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
+

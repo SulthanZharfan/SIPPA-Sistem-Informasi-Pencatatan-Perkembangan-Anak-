@@ -5,9 +5,9 @@ namespace App\Filament\Guru\Resources\PertemuanPerkembanganFisiks\Pages;
 use App\Filament\Guru\Resources\PertemuanPerkembanganFisiks\PertemuanPerkembanganFisikResource;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecordRedirect;
 
-class EditPertemuanPerkembanganFisik extends EditRecord
+class EditPertemuanPerkembanganFisik extends EditRecordRedirect
 {
     protected static string $resource = PertemuanPerkembanganFisikResource::class;
 
@@ -36,3 +36,4 @@ class EditPertemuanPerkembanganFisik extends EditRecord
             ->label('Batal');
     }
 }
+

@@ -4,10 +4,10 @@ namespace App\Filament\Resources\Kelas\Pages;
 
 use App\Filament\Resources\Kelas\KelasResource;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecordRedirect;
 use Filament\Actions\Action;
 
-class EditKelas extends EditRecord
+class EditKelas extends EditRecordRedirect
 {
     protected static string $resource = KelasResource::class;
 
@@ -31,3 +31,4 @@ class EditKelas extends EditRecord
             ->label('Batal');
     }
 }
+

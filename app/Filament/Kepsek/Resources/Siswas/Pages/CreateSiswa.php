@@ -3,9 +3,10 @@
 namespace App\Filament\Kepsek\Resources\Siswas\Pages;
 
 use App\Filament\Kepsek\Resources\Siswas\SiswaResource;
-use Filament\Resources\Pages\CreateRecord;
+use App\Filament\Pages\CreateRecordRedirect;
 
-class CreateSiswa extends CreateRecord
+class CreateSiswa extends CreateRecordRedirect
 {
     protected static string $resource = SiswaResource::class;
 }
+

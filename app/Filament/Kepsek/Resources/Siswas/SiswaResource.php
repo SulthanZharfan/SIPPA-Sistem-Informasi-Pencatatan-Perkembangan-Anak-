@@ -26,6 +26,11 @@ class SiswaResource extends Resource
     // Dipakai Filament buat label record (misal di relasi)
     protected static ?string $recordTitleAttribute = 'nama';
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
+
     public static function form(Schema $schema): Schema
     {
         // Kepsek tidak input/edit, jadi kosongkan

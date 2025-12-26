@@ -4,10 +4,10 @@ namespace App\Filament\Resources\Walis\Pages;
 
 use App\Filament\Resources\Walis\WaliResource;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecordRedirect;
 use Filament\Actions\Action;
 
-class EditWali extends EditRecord
+class EditWali extends EditRecordRedirect
 {
     protected static string $resource = WaliResource::class;
 
@@ -31,3 +31,4 @@ class EditWali extends EditRecord
             ->label('Batal');
     }
 }
+

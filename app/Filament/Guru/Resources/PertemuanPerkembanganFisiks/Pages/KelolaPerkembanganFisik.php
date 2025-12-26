@@ -298,10 +298,7 @@ class KelolaPerkembanganFisik extends Page implements Forms\Contracts\HasForms
             ->success()
             ->send();
 
-        // reload agar nilai terbaru terisi kembali ke form
-        $this->form->fill([
-            'perkembangan' => $this->generatePerkembanganState(),
-        ]);
+        $this->redirect(PertemuanPerkembanganFisikResource::getUrl());
     }
 
     public function getTitle(): string

@@ -5,9 +5,9 @@ namespace App\Filament\Guru\Resources\Presensis\Pages;
 use App\Filament\Guru\Resources\Presensis\PresensiResource;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
-use Filament\Resources\Pages\EditRecord;
+use App\Filament\Pages\EditRecordRedirect;
 
-class EditPresensi extends EditRecord
+class EditPresensi extends EditRecordRedirect
 {
     protected static string $resource = PresensiResource::class;
 
@@ -31,3 +31,4 @@ class EditPresensi extends EditRecord
             ->label('Batal');
     }
 }
+
