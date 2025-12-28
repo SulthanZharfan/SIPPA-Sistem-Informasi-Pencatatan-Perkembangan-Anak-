@@ -1,21 +1,18 @@
 <?php
 
-namespace App\Filament\Kepsek\Resources\Siswas\Pages;
+namespace App\Filament\Wali\Pages;
 
-use App\Filament\Kepsek\Resources\Siswas\SiswaResource;
-use App\Filament\Kepsek\Widgets\SiswaPerkembanganFisikChart;
-use App\Filament\Kepsek\Widgets\SiswaPerkembanganFisikTable;
-use App\Filament\Kepsek\Widgets\SiswaPerkembanganKognitifTable;
-use App\Filament\Kepsek\Widgets\SiswaPresensiTable;
+use App\Filament\Wali\Widgets\WaliPerkembanganFisikChart;
+use App\Filament\Wali\Widgets\WaliPerkembanganKognitifTable;
+use App\Filament\Wali\Widgets\WaliPresensiTable;
 use App\Models\PerkembanganFisik;
-use App\Models\PerkembanganKognitif;
 use App\Models\Presensi;
+use App\Models\Wali;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\ToggleButtons;
-use Filament\Schemas\Components\Utilities\Get;
-use Filament\Resources\Pages\ViewRecord;
+use Filament\Pages\Page;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Grid;
@@ -24,70 +21,78 @@ use Filament\Schemas\Components\Livewire;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
+use BackedEnum;
+use UnitEnum;
 
-class ViewSiswa extends ViewRecord implements Forms\Contracts\HasForms
+class Dashboard extends Page implements Forms\Contracts\HasForms
 {
     use Forms\Concerns\InteractsWithForms;
 
-    protected static string $resource = SiswaResource::class;
+    protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-home';
+
+    protected static ?string $navigationLabel = 'Dashboard';
+
+    protected static ?string $title = 'Dashboard Wali';
+
+    protected static string|UnitEnum|null $navigationGroup = null;
+
+    protected string $view = 'filament-panels::pages.page';
 
     public ?array $filters = [];
 
-    public function mount(int | string $record): void
-    {
-        parent::mount($record);
+    protected ?Wali $wali = null;
 
-        $this->record->loadMissing(['kelas.guru', 'wali']);
+    public function mount(): void
+    {
+        $this->wali = Wali::with(['siswas.kelas.guru'])
+            ->where('user_id', Auth::id())
+            ->first();
+
+        if (! $this->wali) {
+            abort(403);
+        }
 
         $defaultDate = $this->getDefaultFilterDate() ?? now()->toDateString();
 
         $this->filters = [
             'mode' => 'semua',
-            'tanggal_mingguan' => Carbon::parse($defaultDate)
-                ->startOfWeek(Carbon::MONDAY)
-                ->toDateString(),
+            'tanggal_mingguan' => $defaultDate,
             'bulan' => Carbon::parse($defaultDate)->format('Y-m'),
         ];
     }
 
-    protected function getHeaderActions(): array
-    {
-        return [];
-    }
-
-    public function getTitle(): string
-    {
-        return 'Ringkasan Siswa: ' . ($this->record->nama ?? '-');
-    }
-
-    public function getHeading(): string
-    {
-        return 'Ringkasan Siswa: ' . ($this->record->nama ?? '-');
-    }
-
     public function content(Schema $schema): Schema
     {
-        [$fisikStart, $fisikEnd] = $this->getFisikRange();
-        $kognitifTahunAjaranId = $this->getKognitifTahunAjaranId();
+        $siswa = $this->getSelectedSiswa();
+
+        if (! $siswa) {
+            return $schema->components([
+                Section::make('Informasi Umum Anak')
+                    ->schema([
+                        Text::make('Belum ada data anak yang terhubung dengan akun wali ini.'),
+                    ]),
+            ]);
+        }
 
         [$presensiStart, $presensiEnd] = $this->getPresensiRange();
-
-        $presensiSummary = $this->getPresensiSummary(null, null);
-        $kognitifSummary = $this->getKognitifSummary($kognitifTahunAjaranId);
-        $fisikLatest = $this->getLatestFisik($fisikStart, $fisikEnd);
+        $presensiSummary = $this->getPresensiSummary($siswa->id, null, null);
+        $fisikLatest = $this->getLatestFisik($siswa->id);
         $fisikRekomendasiText = $this->getFisikRecommendation($fisikLatest['status_raw'] ?? null);
 
         return $schema->components([
-            Section::make('Informasi Umum')
+            Section::make('Informasi Umum Anak')
                 ->schema([
                     Grid::make(2)
                         ->schema([
-                            Text::make('Nama: ' . ($this->record->nama ?? '-')),
-                            Text::make('NIS: ' . ($this->record->nis ?? '-')),
-                            Text::make('Kelas: ' . ($this->record->kelas?->nama ?? '-')),
-                            Text::make('Guru: ' . ($this->record->kelas?->guru?->nama ?? '-')),
-                            Text::make('Wali Murid: ' . ($this->record->wali?->nama ?? '-')),
+                            Text::make('Nama: ' . ($siswa->nama ?? '-')),
+                            Text::make('NIS: ' . ($siswa->nis ?? '-')),
+                            Text::make('NISN: ' . ($siswa->nisn ?? '-')),
+                            Text::make('Kelas: ' . ($siswa->kelas?->nama ?? '-')),
+                            Text::make('Guru Kelas: ' . ($siswa->kelas?->guru?->nama ?? '-')),
+                            Text::make('Wali Murid: ' . ($siswa->wali?->nama ?? '-')),
                         ]),
                 ]),
 
@@ -111,14 +116,15 @@ class ViewSiswa extends ViewRecord implements Forms\Contracts\HasForms
                                 ->badge()
                                 ->color('info'),
                         ]),
-                    Livewire::make(SiswaPresensiTable::class, fn () => [
-                        'siswaId' => $this->record->id,
+                    Livewire::make(WaliPresensiTable::class, fn () => [
+                        'siswaId' => $siswa->id,
+                        'allowedSiswaIds' => $this->wali?->siswas?->pluck('id')->all() ?? [],
                         'startDate' => $presensiStart,
                         'endDate' => $presensiEnd,
-                    ])->key('presensi-' . $this->record->id . '-' . ($presensiStart ?? 'all') . '-' . ($presensiEnd ?? 'all')),
+                    ])->key('wali-presensi-' . $siswa->id . '-' . ($presensiStart ?? 'all') . '-' . ($presensiEnd ?? 'all')),
                 ]),
 
-            Section::make('Ringkasan Perkembangan Fisik')
+            Section::make('Grafik Perkembangan Fisik')
                 ->schema([
                     Grid::make(2)
                         ->schema([
@@ -127,46 +133,31 @@ class ViewSiswa extends ViewRecord implements Forms\Contracts\HasForms
                                 ->color($fisikLatest['status_color'] ?? 'gray'),
                             Text::make('Tanggal Terbaru: ' . ($fisikLatest['tanggal'] ?? '-')),
                         ]),
-                    Livewire::make(SiswaPerkembanganFisikChart::class, fn () => [
-                        'siswaId' => $this->record->id,
-                    ])->key('fisik-chart-' . $this->record->id)->columnSpanFull(),
-                    Section::make('Usulan / Rekomendasi')
-                        ->schema([
-                            Html::make(new HtmlString(
-                                '<div style="font-size: 1rem; line-height: 1.65; color: #1f2937;">' .
-                                    e($fisikRekomendasiText) .
-                                '</div>' .
-                                '<div style="margin-top: 0.5rem; font-size: 0.875rem; line-height: 1.5; color: #6b7280;">' .
-                                    'Catatan: Usulan ini merupakan hasil pengolahan sistem dan digunakan sebagai bahan pertimbangan pendukung.' .
-                                '</div>'
-                            )),
-                        ])
-                        ->columnSpanFull(),
-                    Livewire::make(SiswaPerkembanganFisikTable::class, fn () => [
-                        'siswaId' => $this->record->id,
-                        'startDate' => $fisikStart,
-                        'endDate' => $fisikEnd,
-                    ])->key('fisik-' . $this->record->id . '-' . $fisikStart . '-' . $fisikEnd),
+                    Livewire::make(WaliPerkembanganFisikChart::class, fn () => [
+                        'siswaId' => $siswa->id,
+                        'allowedSiswaIds' => $this->wali?->siswas?->pluck('id')->all() ?? [],
+                    ])->key('wali-fisik-chart-' . $siswa->id)->columnSpanFull(),
                 ]),
+
+            Section::make('Usulan / Rekomendasi')
+                ->schema([
+                    Html::make(new HtmlString(
+                        '<div style="font-size: 1rem; line-height: 1.65; color: #1f2937;">' .
+                            e($fisikRekomendasiText) .
+                        '</div>' .
+                        '<div style="margin-top: 0.5rem; font-size: 0.875rem; line-height: 1.5; color: #6b7280;">' .
+                            'Catatan: Rekomendasi ini merupakan hasil pengolahan sistem dan digunakan sebagai bahan pertimbangan pendukung.' .
+                        '</div>'
+                    )),
+                ])
+                ->columnSpanFull(),
 
             Section::make('Ringkasan Perkembangan Kognitif')
                 ->schema([
-                    Grid::make(3)
-                        ->schema([
-                            Text::make('Disetujui: ' . $kognitifSummary['disetujui'])
-                                ->badge()
-                                ->color('success'),
-                            Text::make('Menunggu: ' . $kognitifSummary['menunggu'])
-                                ->badge()
-                                ->color('warning'),
-                            Text::make('Revisi: ' . $kognitifSummary['revisi'])
-                                ->badge()
-                                ->color('danger'),
-                        ]),
-                    Livewire::make(SiswaPerkembanganKognitifTable::class, fn () => [
-                        'siswaId' => $this->record->id,
-                        'tahunAjaranId' => $kognitifTahunAjaranId,
-                    ])->key('kognitif-' . $this->record->id . '-' . ($kognitifTahunAjaranId ?? 'all')),
+                    Livewire::make(WaliPerkembanganKognitifTable::class, fn () => [
+                        'siswaId' => $siswa->id,
+                        'allowedSiswaIds' => $this->wali?->siswas?->pluck('id')->all() ?? [],
+                    ])->key('wali-kognitif-' . $siswa->id),
                 ]),
         ]);
     }
@@ -225,7 +216,7 @@ class ViewSiswa extends ViewRecord implements Forms\Contracts\HasForms
             'semua' => [null, null],
             'mingguan' => [
                 $base->copy()->startOfWeek(Carbon::MONDAY)->toDateString(),
-                $base->copy()->endOfWeek(Carbon::SUNDAY)->toDateString(),
+                $base->copy()->endOfWeek(Carbon::FRIDAY)->toDateString(),
             ],
             'bulanan' => [
                 $base->copy()->startOfMonth()->toDateString(),
@@ -238,10 +229,10 @@ class ViewSiswa extends ViewRecord implements Forms\Contracts\HasForms
         };
     }
 
-    protected function getPresensiSummary(?string $startDate, ?string $endDate): array
+    protected function getPresensiSummary(int $siswaId, ?string $startDate, ?string $endDate): array
     {
         $result = Presensi::query()
-            ->where('siswa_id', $this->record->id)
+            ->where('siswa_id', $siswaId)
             ->when($startDate, fn ($q) => $q->whereDate('tanggal', '>=', $startDate))
             ->when($endDate, fn ($q) => $q->whereDate('tanggal', '<=', $endDate))
             ->selectRaw("
@@ -260,30 +251,10 @@ class ViewSiswa extends ViewRecord implements Forms\Contracts\HasForms
         ];
     }
 
-    protected function getKognitifSummary(?int $tahunAjaranId): array
-    {
-        $result = PerkembanganKognitif::query()
-            ->where('siswa_id', $this->record->id)
-            ->when($tahunAjaranId, fn (\Illuminate\Database\Eloquent\Builder $q) => $q->where('tahun_ajaran_id', $tahunAjaranId))
-            ->selectRaw("
-                SUM(status_persetujuan = 'disetujui') as disetujui_count,
-                SUM(status_persetujuan = 'menunggu') as menunggu_count,
-                SUM(status_persetujuan = 'revisi') as revisi_count
-            ")
-            ->first();
-
-        return [
-            'disetujui' => (int) ($result->disetujui_count ?? 0),
-            'menunggu' => (int) ($result->menunggu_count ?? 0),
-            'revisi' => (int) ($result->revisi_count ?? 0),
-        ];
-    }
-
-    protected function getLatestFisik(string $startDate, string $endDate): array
+    protected function getLatestFisik(int $siswaId): array
     {
         $latest = PerkembanganFisik::query()
-            ->where('siswa_id', $this->record->id)
-            ->whereBetween('tanggal_ukur', [$startDate, $endDate])
+            ->where('siswa_id', $siswaId)
             ->latest('tanggal_ukur')
             ->first();
 
@@ -317,49 +288,34 @@ class ViewSiswa extends ViewRecord implements Forms\Contracts\HasForms
             return 'Perkembangan fisik anak berada dalam kategori normal. Disarankan untuk melanjutkan pemantauan rutin serta menjaga pola makan dan aktivitas fisik yang seimbang.';
         }
 
-        return 'Perkembangan fisik anak memerlukan perhatian lebih. Disarankan untuk melakukan pemantauan lanjutan dan berkonsultasi dengan tenaga kesehatan profesional, seperti dokter anak atau ahli gizi, untuk mendapatkan rekomendasi yang sesuai.';
-    }
-
-    protected function getFisikRange(): array
-    {
-        $latestDate = PerkembanganFisik::query()
-            ->where('siswa_id', $this->record->id)
-            ->latest('tanggal_ukur')
-            ->value('tanggal_ukur');
-
-        if (! $latestDate) {
-            $today = Carbon::today();
-            return [
-                $today->copy()->startOfMonth()->toDateString(),
-                $today->copy()->endOfMonth()->toDateString(),
-            ];
-        }
-
-        $base = Carbon::parse($latestDate);
-
-        return [
-            $base->copy()->startOfMonth()->toDateString(),
-            $base->copy()->endOfMonth()->toDateString(),
-        ];
-    }
-
-    protected function getKognitifTahunAjaranId(): ?int
-    {
-        return $this->record->tahun_ajaran_id
-            ?? PerkembanganKognitif::query()
-                ->where('siswa_id', $this->record->id)
-                ->latest('created_at')
-                ->value('tahun_ajaran_id');
+        return 'Perkembangan fisik anak memerlukan perhatian. Disarankan untuk berkonsultasi dengan tenaga kesehatan seperti dokter anak atau ahli gizi.';
     }
 
     protected function getDefaultFilterDate(): ?string
     {
+        $siswa = $this->getSelectedSiswa();
+
+        if (! $siswa) {
+            return null;
+        }
+
         $presensiDate = Presensi::query()
-            ->where('siswa_id', $this->record->id)
+            ->where('siswa_id', $siswa->id)
             ->latest('tanggal')
             ->value('tanggal');
 
         return $presensiDate ? Carbon::parse($presensiDate)->toDateString() : null;
+    }
+
+    protected function getSelectedSiswa()
+    {
+        if (! $this->wali) {
+            $this->wali = Wali::with(['siswas.kelas.guru'])
+                ->where('user_id', Auth::id())
+                ->first();
+        }
+
+        return $this->wali?->siswas?->sortBy('nama')->first();
     }
 
     protected function getMonthlyOptions(): array
@@ -378,8 +334,14 @@ class ViewSiswa extends ViewRecord implements Forms\Contracts\HasForms
 
     protected function getWeeklyOptions(): array
     {
+        $siswa = $this->getSelectedSiswa();
+
+        if (! $siswa) {
+            return [];
+        }
+
         $dates = Presensi::query()
-            ->where('siswa_id', $this->record->id)
+            ->where('siswa_id', $siswa->id)
             ->orderByDesc('tanggal')
             ->pluck('tanggal');
 
@@ -387,7 +349,7 @@ class ViewSiswa extends ViewRecord implements Forms\Contracts\HasForms
 
         foreach ($dates as $date) {
             $start = Carbon::parse($date)->startOfWeek(Carbon::MONDAY);
-            $end = $start->copy()->endOfWeek(Carbon::SUNDAY);
+            $end = $start->copy()->endOfWeek(Carbon::FRIDAY);
             $key = $start->toDateString();
 
             if (! array_key_exists($key, $options)) {
@@ -398,5 +360,4 @@ class ViewSiswa extends ViewRecord implements Forms\Contracts\HasForms
 
         return $options;
     }
-
 }

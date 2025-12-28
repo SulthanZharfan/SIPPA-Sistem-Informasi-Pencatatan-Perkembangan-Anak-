@@ -124,6 +124,16 @@ class PerkembanganKognitifResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('indikator.aspek')
                     ->label('Indikator')
+                    ->getStateUsing(function ($record): string {
+                        $indikator = $record?->indikator;
+                        $label = $indikator?->aspek ?: $indikator?->deskripsi ?: '-';
+
+                        if (str_starts_with($label, 'Berisikan Penjelasan ')) {
+                            $label = substr($label, strlen('Berisikan Penjelasan '));
+                        }
+
+                        return $label;
+                    })
                     ->limit(40)
                     ->tooltip(fn ($record) => $record?->indikator?->deskripsi),
                 Tables\Columns\BadgeColumn::make('status_persetujuan')

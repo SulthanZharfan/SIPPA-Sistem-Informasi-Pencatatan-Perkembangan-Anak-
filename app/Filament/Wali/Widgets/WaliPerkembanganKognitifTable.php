@@ -1,34 +1,31 @@
 <?php
 
-namespace App\Filament\Kepsek\Widgets;
+namespace App\Filament\Wali\Widgets;
 
-use App\Filament\Kepsek\Resources\PerkembanganKognitifs\PerkembanganKognitifResource;
 use App\Models\PerkembanganKognitif;
-use Filament\Actions\Action;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
 
-class SiswaPerkembanganKognitifTable extends TableWidget
+class WaliPerkembanganKognitifTable extends TableWidget
 {
     protected static bool $isLazy = false;
 
     protected int $defaultTableRecordsPerPage = 5;
 
     public ?int $siswaId = null;
-    public ?int $tahunAjaranId = null;
+    public array $allowedSiswaIds = [];
 
     protected function getTableQuery(): Builder
     {
-        if (! $this->siswaId) {
+        if (! $this->siswaId || ! in_array($this->siswaId, $this->allowedSiswaIds, true)) {
             return PerkembanganKognitif::query()->whereRaw('1 = 0');
         }
 
         return PerkembanganKognitif::query()
             ->with(['indikator'])
             ->where('siswa_id', $this->siswaId)
-            ->when($this->tahunAjaranId, fn (Builder $q) => $q->where('tahun_ajaran_id', $this->tahunAjaranId))
             ->orderByDesc('created_at');
     }
 
@@ -69,15 +66,6 @@ class SiswaPerkembanganKognitifTable extends TableWidget
                     'warning' => 'menunggu',
                     'danger' => 'revisi',
                 ]),
-        ];
-    }
-
-    protected function getTableActions(): array
-    {
-        return [
-            Action::make('detail')
-                ->label('Detail')
-                ->url(fn (PerkembanganKognitif $record) => PerkembanganKognitifResource::getUrl('view', ['record' => $record])),
         ];
     }
 

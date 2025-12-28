@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
 class RaporDigital extends Model
 {
     protected $fillable = [
@@ -13,6 +12,10 @@ class RaporDigital extends Model
         'tanggal_generate',
         'periode',
         'file_path',
+    ];
+
+    protected $casts = [
+        'tanggal_generate' => 'date',
     ];
 
     public function siswa()

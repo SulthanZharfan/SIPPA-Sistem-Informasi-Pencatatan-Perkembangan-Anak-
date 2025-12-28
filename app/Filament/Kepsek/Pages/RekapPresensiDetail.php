@@ -292,17 +292,21 @@ class RekapPresensiDetail extends Page implements HasTable
     protected function getSummaryCounts(): array
     {
         $query = Presensi::query();
+        $kelasId = $this->kelas_id;
+        $guruId = $this->guru_id;
+        $tahunAjaranId = $this->tahun_ajaran_id;
 
         if ($this->getMode() === 'harian' && $this->pertemuan) {
-            $query->where('pertemuan_presensi_id', $this->pertemuan);
-        } else {
-            $query
-                ->when($this->kelas_id, fn (Builder $q) => $q->where('kelas_id', $this->kelas_id))
-                ->when($this->guru_id, fn (Builder $q) => $q->where('guru_id', $this->guru_id))
-                ->when($this->tahun_ajaran_id, fn (Builder $q) => $q->where('tahun_ajaran_id', $this->tahun_ajaran_id))
-                ->when($this->mulai, fn (Builder $q) => $q->whereDate('tanggal', '>=', $this->mulai))
-                ->when($this->sampai, fn (Builder $q) => $q->whereDate('tanggal', '<=', $this->sampai));
+            $pertemuan = $this->getPertemuan();
+            $kelasId = $kelasId ?? $pertemuan?->kelas_id;
+            $guruId = $guruId ?? $pertemuan?->guru_id;
+            $tahunAjaranId = $tahunAjaranId ?? $pertemuan?->tahun_ajaran_id;
         }
+
+        $query
+            ->when($kelasId, fn (Builder $q) => $q->where('kelas_id', $kelasId))
+            ->when($guruId, fn (Builder $q) => $q->where('guru_id', $guruId))
+            ->when($tahunAjaranId, fn (Builder $q) => $q->where('tahun_ajaran_id', $tahunAjaranId));
 
         $result = $query->selectRaw("
             SUM(status_kehadiran = 'hadir') as hadir_count,
