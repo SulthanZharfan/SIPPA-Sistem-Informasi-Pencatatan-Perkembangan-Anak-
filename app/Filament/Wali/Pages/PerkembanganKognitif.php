@@ -7,9 +7,11 @@ use App\Models\PerkembanganKognitif as PerkembanganKognitifModel;
 use App\Models\TahunAjaran;
 use App\Models\Wali;
 use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Grid;
@@ -26,6 +28,8 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
 {
     use Forms\Concerns\InteractsWithForms;
 
+    private const NARASI_LIMIT = 300;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?string $navigationLabel = 'Perkembangan Kognitif';
@@ -37,6 +41,8 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
     protected string $view = 'filament-panels::pages.page';
 
     public ?array $filters = [];
+
+    public array $expanded = [];
 
     protected ?Wali $wali = null;
 
@@ -90,6 +96,11 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
                             Text::make('Tanggal catatan terakhir: ' . ($summary['tanggal_terakhir'] ?? '-')),
                             Text::make('Guru terakhir: ' . ($summary['guru_terakhir'] ?? '-')),
                         ]),
+                    Html::make(new HtmlString(
+                        '<div style="margin-top: 0.5rem; font-size: 0.875rem; line-height: 1.5; color: #6b7280;">' .
+                            'Informasi ditampilkan dari catatan perkembangan yang diinput oleh guru melalui sistem.' .
+                        '</div>'
+                    )),
                 ])
                 ->columnSpanFull(),
         ];
@@ -102,6 +113,8 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
                 : '-';
             $guruLabel = $record?->guru?->nama ?? '-';
             $narasiText = $record?->narasi ?? '';
+            $isExpanded = $this->expanded[$indikator['id']] ?? false;
+            $canToggle = mb_strlen(trim($narasiText)) > self::NARASI_LIMIT;
 
             $sectionSchema = [
                 Grid::make(2)
@@ -112,7 +125,15 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
             ];
 
             if ($record) {
-                $sectionSchema[] = Html::make($this->buildNarasiHtml($narasiText));
+                $sectionSchema[] = Html::make($this->buildNarasiHtml($narasiText, $isExpanded));
+                if ($canToggle) {
+                    $sectionSchema[] = Actions::make([
+                        Action::make('toggle_' . $indikator['id'])
+                            ->label($isExpanded ? 'Tutup' : 'Lihat selengkapnya')
+                            ->link()
+                            ->action(fn () => $this->toggleExpanded($indikator['id'])),
+                    ]);
+                }
             } else {
                 $sectionSchema[] = Text::make('Belum ada catatan untuk indikator ini pada semester yang dipilih.');
             }
@@ -190,7 +211,7 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
         return $label;
     }
 
-    protected function buildNarasiHtml(?string $text): HtmlString
+    protected function buildNarasiHtml(?string $text, bool $expanded): HtmlString
     {
         $text = trim($text ?? '');
 
@@ -198,7 +219,8 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
             return new HtmlString('<p style="margin: 0;">Belum ada narasi perkembangan.</p>');
         }
 
-        $paragraphs = preg_split("/\r?\n\r?\n/", $text);
+        $displayText = $expanded ? $text : $this->truncateText($text);
+        $paragraphs = preg_split("/\r?\n\r?\n/", $displayText);
 
         $html = collect($paragraphs)
             ->map(function (string $paragraph): string {
@@ -209,6 +231,20 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
             ->implode('');
 
         return new HtmlString($html);
+    }
+
+    protected function truncateText(string $text): string
+    {
+        $clean = trim($text);
+
+        if (mb_strlen($clean) <= self::NARASI_LIMIT) {
+            return $clean;
+        }
+
+        $snippet = mb_substr($clean, 0, self::NARASI_LIMIT);
+        $snippet = rtrim($snippet);
+
+        return $snippet . '...';
     }
 
     protected function getOrderedIndicators($records): array
@@ -330,4 +366,8 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
         return $this->wali;
     }
 
+    public function toggleExpanded(int $indikatorId): void
+    {
+        $this->expanded[$indikatorId] = ! ($this->expanded[$indikatorId] ?? false);
+    }
 }

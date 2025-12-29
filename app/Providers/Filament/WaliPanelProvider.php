@@ -10,7 +10,7 @@ use App\Filament\Wali\Pages\Dashboard;
 use App\Filament\Wali\Pages\DetailPerkembanganAnak;
 use App\Filament\Wali\Pages\PerkembanganFisik;
 use App\Filament\Wali\Pages\PerkembanganKognitif;
-use App\Filament\Wali\Pages\RaporDigital;
+use App\Filament\Wali\Pages\LaporanSemester;
 use App\Filament\Wali\Pages\Presensi;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -42,7 +42,7 @@ class WaliPanelProvider extends PanelProvider
                 DetailPerkembanganAnak::class,
                 PerkembanganFisik::class,
                 PerkembanganKognitif::class,
-                RaporDigital::class,
+                LaporanSemester::class,
                 Presensi::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Wali/Widgets'), for: 'App\Filament\Wali\Widgets')
