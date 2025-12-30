@@ -15,7 +15,7 @@ class SiswasTable
         return $table
             ->columns([
                 TextColumn::make('nis')
-                    ->label('NIS')
+                    ->label('NISN')
                     ->searchable(),
 
                 TextColumn::make('nama')

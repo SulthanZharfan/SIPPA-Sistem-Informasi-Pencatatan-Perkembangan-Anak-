@@ -45,7 +45,7 @@ class KepsekStudentsK2Table extends TableWidget
                 ->sortable(),
 
             TextColumn::make('nis')
-                ->label('NIS')
+                ->label('NISN')
                 ->badge()
                 ->color('info')
                 ->sortable(),

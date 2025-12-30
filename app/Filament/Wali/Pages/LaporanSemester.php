@@ -9,6 +9,7 @@ use App\Models\Presensi as PresensiModel;
 use App\Models\TahunAjaran;
 use App\Models\Wali;
 use Carbon\Carbon;
+use Filament\Actions\Action;
 use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Pages\Page;
@@ -19,10 +20,13 @@ use Filament\Schemas\Components\Html;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
 use BackedEnum;
 use UnitEnum;
+use App\Services\LaporanSemesterPdfService;
+use App\Support\LaporanNomorGenerator;
 
 class LaporanSemester extends Page implements Forms\Contracts\HasForms
 {
@@ -72,18 +76,15 @@ class LaporanSemester extends Page implements Forms\Contracts\HasForms
             ]);
         }
 
-        $tahunAjaranId = $this->filters['tahun_ajaran_id'] ?? null;
-        $tahunAjaran = $this->getTahunAjaran($tahunAjaranId);
-        $startDate = null;
-        $endDate = null;
-
-        $presensiSummary = $this->getPresensiSummary($siswa->id, $tahunAjaranId, $startDate, $endDate);
-        $fisikSummary = $this->getLatestFisik($siswa->id, $tahunAjaranId, $startDate, $endDate);
-        $fisikRekomendasi = $this->getFisikRecommendation($fisikSummary['status_raw'] ?? null);
-        $kognitifRecords = $this->getKognitifRecords($siswa->id, $tahunAjaranId, $startDate, $endDate);
-        $indikatorList = $this->getOrderedIndicators($kognitifRecords);
+        $report = $this->buildReportData($siswa);
 
         $components = [
+            Html::make(new HtmlString(
+                '<div style="text-align: right; font-size: 0.875rem; color: #6b7280;">' .
+                    'Nomor Laporan: <strong style="color: #111827;">' . e($report['nomor_laporan']) . '</strong>' .
+                    '<div style="font-size: 0.75rem; margin-top: 2px;">Nomor laporan ini dihasilkan secara otomatis oleh sistem.</div>' .
+                '</div>'
+            )),
             Section::make('Filter Laporan')
                 ->schema([
                     Form::make([
@@ -91,18 +92,17 @@ class LaporanSemester extends Page implements Forms\Contracts\HasForms
                     ]),
                 ]),
 
-            Section::make('Header Laporan')
+            Section::make('Informasi Laporan')
                 ->schema([
                     Grid::make(2)
                         ->schema([
-                            Html::make($this->buildHeaderItem('Nama Anak', $siswa->nama ?? '-')),
-                            Html::make($this->buildHeaderItem('NIS', $siswa->nis ?? '-')),
-                            Html::make($this->buildHeaderItem('NISN', $siswa->nisn ?? '-')),
-                            Html::make($this->buildHeaderItem('Kelas', $siswa->kelas?->nama ?? '-')),
-                            Html::make($this->buildHeaderItem('Nama Guru Kelas', $siswa->kelas?->guru?->nama ?? '-')),
-                            Html::make($this->buildHeaderItem('Nama Wali Murid', $siswa->wali?->nama ?? '-')),
-                            Html::make($this->buildHeaderItem('Tahun Ajaran', $tahunAjaran?->label ?? '-')),
-                            Html::make($this->buildHeaderItem('Tanggal Cetak', Carbon::now()->format('d M Y'))),
+                            Html::make($this->buildHeaderItem('Nama Anak', $report['siswa']['nama'] ?? '-')),
+                            Html::make($this->buildHeaderItem('NISN', $report['siswa']['nis'] ?? '-')),
+                            Html::make($this->buildHeaderItem('Kelas', $report['siswa']['kelas'] ?? '-')),
+                            Html::make($this->buildHeaderItem('Nama Guru Kelas', $report['siswa']['guru_kelas'] ?? '-')),
+                            Html::make($this->buildHeaderItem('Nama Wali Murid', $report['siswa']['wali'] ?? '-')),
+                            Html::make($this->buildHeaderItem('Tahun Ajaran', $report['tahun_ajaran'] ?? '-')),
+                            Html::make($this->buildHeaderItem('Tanggal Cetak', $report['tanggal_cetak'] ?? '-')),
                         ]),
                 ]),
 
@@ -110,19 +110,19 @@ class LaporanSemester extends Page implements Forms\Contracts\HasForms
                 ->schema([
                     Grid::make(5)
                         ->schema([
-                            Text::make('Total Hadir: ' . $presensiSummary['hadir'])
+                            Text::make('Total Hadir: ' . $report['presensi']['hadir'])
                                 ->badge()
                                 ->color('success'),
-                            Text::make('Total Alfa: ' . $presensiSummary['alfa'])
+                            Text::make('Total Alfa: ' . $report['presensi']['alfa'])
                                 ->badge()
                                 ->color('danger'),
-                            Text::make('Total Izin: ' . $presensiSummary['izin'])
+                            Text::make('Total Izin: ' . $report['presensi']['izin'])
                                 ->badge()
                                 ->color('warning'),
-                            Text::make('Total Sakit: ' . $presensiSummary['sakit'])
+                            Text::make('Total Sakit: ' . $report['presensi']['sakit'])
                                 ->badge()
                                 ->color('info'),
-                            Text::make('Persentase Hadir: ' . $presensiSummary['persentase_hadir']),
+                            Text::make('Persentase Hadir: ' . $report['presensi']['persentase_hadir']),
                         ]),
                 ]),
 
@@ -130,20 +130,20 @@ class LaporanSemester extends Page implements Forms\Contracts\HasForms
                 ->schema([
                     Grid::make(1)
                         ->schema([
-                            Text::make('Status Terakhir: ' . ($fisikSummary['status'] ?? '-'))
+                            Text::make('Status Terakhir: ' . ($report['fisik']['status'] ?? '-'))
                                 ->badge()
-                                ->color($fisikSummary['status_color'] ?? 'gray'),
+                                ->color($report['fisik']['status_color'] ?? 'gray'),
                         ]),
                     Grid::make(3)
                         ->schema([
-                            Html::make($this->buildHeaderItem('Tanggal Terakhir', $fisikSummary['tanggal'] ?? '-')),
-                            Html::make($this->buildHeaderItem('TB Terakhir', $fisikSummary['tb'] ?? '-')),
-                            Html::make($this->buildHeaderItem('BB Terakhir', $fisikSummary['bb'] ?? '-')),
-                            Html::make($this->buildHeaderItem('LK Terakhir', $fisikSummary['lk'] ?? '-')),
+                            Html::make($this->buildHeaderItem('Tanggal Terakhir', $report['fisik']['tanggal'] ?? '-')),
+                            Html::make($this->buildHeaderItem('TB Terakhir', $report['fisik']['tb'] ?? '-')),
+                            Html::make($this->buildHeaderItem('BB Terakhir', $report['fisik']['bb'] ?? '-')),
+                            Html::make($this->buildHeaderItem('LK Terakhir', $report['fisik']['lk'] ?? '-')),
                         ]),
                     Html::make(new HtmlString(
                         '<div style="font-size: 1rem; line-height: 1.65; color: #1f2937;">' .
-                            e($fisikRekomendasi) .
+                            e($report['fisik']['rekomendasi'] ?? '-') .
                         '</div>' .
                         '<div style="margin-top: 0.5rem; font-size: 0.875rem; line-height: 1.5; color: #6b7280;">' .
                             'Catatan: Rekomendasi ini merupakan hasil pengolahan sistem dan digunakan sebagai bahan pertimbangan pendukung.' .
@@ -155,8 +155,8 @@ class LaporanSemester extends Page implements Forms\Contracts\HasForms
         $components[] = Section::make('Ringkasan Perkembangan Kognitif Semester')
             ->schema([]);
 
-        foreach ($indikatorList as $indikator) {
-            $record = $kognitifRecords->firstWhere('indikator_id', $indikator['id']);
+        foreach ($report['kognitif'] as $indikator) {
+            $record = $indikator['record'] ?? null;
             $indikatorLabel = $indikator['label'];
             $narasiText = $record?->narasi ?? '';
 
@@ -178,6 +178,85 @@ class LaporanSemester extends Page implements Forms\Contracts\HasForms
             ]);
 
         return $schema->components($components);
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Action::make('cetakPdf')
+                ->label('Cetak PDF')
+                ->icon('heroicon-o-printer')
+                ->action(fn () => $this->downloadPdf()),
+        ];
+    }
+
+    protected function downloadPdf(): StreamedResponse
+    {
+        $siswa = $this->getSelectedSiswa();
+
+        if (! $siswa) {
+            abort(403);
+        }
+
+        $report = $this->buildReportData($siswa);
+        $pdf = app(LaporanSemesterPdfService::class)->make($report);
+        $filename = 'laporan-semester-' . ($siswa->nama ? strtolower(str_replace(' ', '-', $siswa->nama)) : 'siswa') . '.pdf';
+
+        return response()->streamDownload(
+            fn () => print($pdf->output()),
+            $filename,
+            ['Content-Type' => 'application/pdf']
+        );
+    }
+
+    protected function buildReportData($siswa): array
+    {
+        $tahunAjaranId = $this->filters['tahun_ajaran_id'] ?? null;
+        $tahunAjaran = $this->getTahunAjaran($tahunAjaranId);
+        $startDate = null;
+        $endDate = null;
+
+        $presensiSummary = $this->getPresensiSummary($siswa->id, $tahunAjaranId, $startDate, $endDate);
+        $fisikSummary = $this->getLatestFisik($siswa->id, $tahunAjaranId, $startDate, $endDate);
+        $fisikRekomendasi = $this->getFisikRecommendation($fisikSummary['status_raw'] ?? null);
+        $kognitifRecords = $this->getKognitifRecords($siswa->id, $tahunAjaranId, $startDate, $endDate);
+        $indikatorList = $this->getOrderedIndicators($kognitifRecords);
+
+        return [
+            'siswa' => [
+                'nama' => $siswa->nama ?? '-',
+                'nis' => $siswa->nis ?? '-',
+                'nisn' => $siswa->nisn ?? '-',
+                'kelas' => $siswa->kelas?->nama ?? '-',
+                'guru_kelas' => $siswa->kelas?->guru?->nama ?? '-',
+                'wali' => $siswa->wali?->nama ?? '-',
+            ],
+            'tahun_ajaran' => $tahunAjaran?->label ?? '-',
+            'tanggal_cetak' => Carbon::now()->format('d M Y'),
+            'nomor_laporan' => LaporanNomorGenerator::make(
+                $tahunAjaran?->label ?? '',
+                $tahunAjaran?->semester ?? null,
+                $siswa->nama ?? ''
+            ),
+            'presensi' => $presensiSummary,
+            'fisik' => [
+                'status' => $fisikSummary['status'] ?? '-',
+                'status_color' => $fisikSummary['status_color'] ?? 'gray',
+                'tanggal' => $fisikSummary['tanggal'] ?? '-',
+                'tb' => $fisikSummary['tb'] ?? '-',
+                'bb' => $fisikSummary['bb'] ?? '-',
+                'lk' => $fisikSummary['lk'] ?? '-',
+                'rekomendasi' => $fisikRekomendasi,
+            ],
+            'kognitif' => collect($indikatorList)->map(function (array $indikator) use ($kognitifRecords) {
+                $record = $kognitifRecords->firstWhere('indikator_id', $indikator['id']);
+
+                return [
+                    'label' => $indikator['label'],
+                    'record' => $record,
+                ];
+            })->values()->all(),
+        ];
     }
 
     public function filtersForm(Schema $schema): Schema

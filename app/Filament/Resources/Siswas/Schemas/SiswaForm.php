@@ -15,7 +15,7 @@ class SiswaForm
             ->columns(2)
             ->components([
                 TextInput::make('nis')
-                    ->label('NIS')
+                    ->label('NISN')
                     ->required()
                     ->maxLength(50),
 

@@ -56,10 +56,11 @@ class Dashboard extends Page implements Forms\Contracts\HasForms
         }
 
         $defaultDate = $this->getDefaultFilterDate() ?? now()->toDateString();
+        $defaultWeeklyStart = $this->getWeeklyPeriodStart($defaultDate);
 
         $this->filters = [
             'mode' => 'semua',
-            'tanggal_mingguan' => $defaultDate,
+            'tanggal_mingguan' => $defaultWeeklyStart ?? $defaultDate,
             'bulan' => Carbon::parse($defaultDate)->format('Y-m'),
         ];
     }
@@ -88,8 +89,7 @@ class Dashboard extends Page implements Forms\Contracts\HasForms
                     Grid::make(2)
                         ->schema([
                             Text::make('Nama: ' . ($siswa->nama ?? '-')),
-                            Text::make('NIS: ' . ($siswa->nis ?? '-')),
-                            Text::make('NISN: ' . ($siswa->nisn ?? '-')),
+                            Text::make('NISN: ' . ($siswa->nis ?? '-')),
                             Text::make('Kelas: ' . ($siswa->kelas?->nama ?? '-')),
                             Text::make('Guru Kelas: ' . ($siswa->kelas?->guru?->nama ?? '-')),
                             Text::make('Wali Murid: ' . ($siswa->wali?->nama ?? '-')),
@@ -215,8 +215,8 @@ class Dashboard extends Page implements Forms\Contracts\HasForms
         return match ($mode) {
             'semua' => [null, null],
             'mingguan' => [
-                $base->copy()->startOfWeek(Carbon::MONDAY)->toDateString(),
-                $base->copy()->endOfWeek(Carbon::FRIDAY)->toDateString(),
+                $base->copy()->toDateString(),
+                $base->copy()->addDays(6)->toDateString(),
             ],
             'bulanan' => [
                 $base->copy()->startOfMonth()->toDateString(),
@@ -343,21 +343,69 @@ class Dashboard extends Page implements Forms\Contracts\HasForms
         $dates = Presensi::query()
             ->where('siswa_id', $siswa->id)
             ->orderByDesc('tanggal')
-            ->pluck('tanggal');
+            ->get(['tanggal', 'tahun_ajaran_id']);
+
+        $tahunMulaiMap = Presensi::query()
+            ->selectRaw('tahun_ajaran_id, MIN(tanggal) as tahun_mulai')
+            ->groupBy('tahun_ajaran_id')
+            ->pluck('tahun_mulai', 'tahun_ajaran_id');
 
         $options = [];
 
         foreach ($dates as $date) {
-            $start = Carbon::parse($date)->startOfWeek(Carbon::MONDAY);
-            $end = $start->copy()->endOfWeek(Carbon::FRIDAY);
+            $tahunMulai = $tahunMulaiMap->get($date->tahun_ajaran_id);
+
+            if (! $tahunMulai) {
+                continue;
+            }
+
+            $startBase = Carbon::parse($tahunMulai);
+            $current = Carbon::parse($date->tanggal);
+            $diffDays = $startBase->diffInDays($current);
+            $weekNumber = (int) floor($diffDays / 7) + 1;
+            $start = $startBase->copy()->addDays(($weekNumber - 1) * 7);
+            $end = $start->copy()->addDays(6);
             $key = $start->toDateString();
 
             if (! array_key_exists($key, $options)) {
-                $weekNumber = $start->isoWeek();
                 $options[$key] = "Minggu {$weekNumber} ({$start->format('d M')} - {$end->format('d M Y')})";
             }
         }
 
         return $options;
+    }
+
+    protected function getWeeklyPeriodStart(string $date): ?string
+    {
+        $siswa = $this->getSelectedSiswa();
+
+        if (! $siswa) {
+            return null;
+        }
+
+        $record = Presensi::query()
+            ->where('siswa_id', $siswa->id)
+            ->whereDate('tanggal', $date)
+            ->orderByDesc('tanggal')
+            ->first(['tanggal', 'tahun_ajaran_id']);
+
+        if (! $record) {
+            return null;
+        }
+
+        $tahunMulai = Presensi::query()
+            ->where('tahun_ajaran_id', $record->tahun_ajaran_id)
+            ->min('tanggal');
+
+        if (! $tahunMulai) {
+            return null;
+        }
+
+        $startBase = Carbon::parse($tahunMulai);
+        $current = Carbon::parse($record->tanggal);
+        $diffDays = $startBase->diffInDays($current);
+        $weekNumber = (int) floor($diffDays / 7) + 1;
+
+        return $startBase->copy()->addDays(($weekNumber - 1) * 7)->toDateString();
     }
 }

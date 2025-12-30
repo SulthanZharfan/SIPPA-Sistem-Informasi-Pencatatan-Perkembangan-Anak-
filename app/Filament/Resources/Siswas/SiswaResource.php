@@ -28,6 +28,8 @@ class SiswaResource extends Resource
     protected static string | UnitEnum | null $navigationGroup = 'Master Data';
 
     protected static ?string $navigationLabel = 'Data Siswa';
+    protected static ?string $modelLabel = 'Siswa';
+    protected static ?string $pluralModelLabel = 'Siswa';
 
     public static function form(Schema $schema): Schema
     {
