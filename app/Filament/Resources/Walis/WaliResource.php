@@ -27,7 +27,7 @@ class WaliResource extends Resource
 
     protected static ?string $navigationLabel = 'Wali Murid';
     protected static ?string $pluralModelLabel = 'Wali Murid';
-    protected static ?string $recordTitleAttribute = 'nama';
+    protected static ?string $recordTitleAttribute = 'nama_tampil';
 
     public static function form(Schema $schema): Schema
     {

@@ -86,7 +86,7 @@ class ViewSiswa extends ViewRecord implements Forms\Contracts\HasForms
                             Text::make('NISN: ' . ($this->record->nis ?? '-')),
                             Text::make('Kelas: ' . ($this->record->kelas?->nama ?? '-')),
                             Text::make('Guru: ' . ($this->record->kelas?->guru?->nama ?? '-')),
-                            Text::make('Wali Murid: ' . ($this->record->wali?->nama ?? '-')),
+                            Text::make('Wali Murid: ' . ($this->record->wali?->nama_tampil ?? '-')),
                         ]),
                 ]),
 

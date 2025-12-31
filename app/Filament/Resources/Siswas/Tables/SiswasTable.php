@@ -48,6 +48,7 @@ class SiswasTable
 
                 TextColumn::make('wali.nama')
                     ->label('Wali Murid')
+                    ->formatStateUsing(fn ($state, $record) => $record->wali?->nama_tampil ?? $state)
                     ->searchable()
                     ->toggleable(isToggledHiddenByDefault: true),
 

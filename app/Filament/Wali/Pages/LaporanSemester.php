@@ -229,7 +229,7 @@ class LaporanSemester extends Page implements Forms\Contracts\HasForms
                 'nisn' => $siswa->nisn ?? '-',
                 'kelas' => $siswa->kelas?->nama ?? '-',
                 'guru_kelas' => $siswa->kelas?->guru?->nama ?? '-',
-                'wali' => $siswa->wali?->nama ?? '-',
+                'wali' => $siswa->wali?->nama_tampil ?? '-',
             ],
             'tahun_ajaran' => $tahunAjaran?->label ?? '-',
             'tanggal_cetak' => Carbon::now()->format('d M Y'),

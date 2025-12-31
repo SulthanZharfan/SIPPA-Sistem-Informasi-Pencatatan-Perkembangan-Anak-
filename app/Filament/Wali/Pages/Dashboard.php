@@ -92,7 +92,7 @@ class Dashboard extends Page implements Forms\Contracts\HasForms
                             Text::make('NISN: ' . ($siswa->nis ?? '-')),
                             Text::make('Kelas: ' . ($siswa->kelas?->nama ?? '-')),
                             Text::make('Guru Kelas: ' . ($siswa->kelas?->guru?->nama ?? '-')),
-                            Text::make('Wali Murid: ' . ($siswa->wali?->nama ?? '-')),
+                            Text::make('Wali Murid: ' . ($siswa->wali?->nama_tampil ?? '-')),
                         ]),
                 ]),
 

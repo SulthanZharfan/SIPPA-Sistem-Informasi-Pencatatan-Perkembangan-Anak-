@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Walis\Pages;
 
 use App\Filament\Resources\Walis\WaliResource;
 use App\Filament\Pages\CreateRecordRedirect;
+use App\Models\Wali;
 use Filament\Actions\Action;
 
 class CreateWali extends CreateRecordRedirect
@@ -26,6 +27,13 @@ class CreateWali extends CreateRecordRedirect
     {
         return parent::getCancelFormAction()
             ->label('Batal');
+    }
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['nama'] = Wali::sanitizeNama($data['nama'] ?? null);
+
+        return $data;
     }
 }
 

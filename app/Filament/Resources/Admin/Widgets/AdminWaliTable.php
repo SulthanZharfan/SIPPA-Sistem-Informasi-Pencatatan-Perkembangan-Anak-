@@ -30,6 +30,7 @@ class AdminWaliTable extends TableWidget
         return [
             TextColumn::make('nama')
                 ->label('Nama')
+                ->formatStateUsing(fn ($state, $record) => $record->nama_tampil)
                 ->searchable()
                 ->sortable(),
 

@@ -52,6 +52,7 @@ class AdminStudentsK2Table extends TableWidget
                 ->label('Wali')
                 ->badge()
                 ->color('gray')
+                ->formatStateUsing(fn ($state, $record) => $record->wali?->nama_tampil ?? $state)
                 ->placeholder('Belum ada')
                 ->sortable(),
         ];

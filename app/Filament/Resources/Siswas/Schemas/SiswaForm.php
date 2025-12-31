@@ -59,6 +59,7 @@ class SiswaForm
                 Select::make('wali_id')
                     ->label('Wali Murid')
                     ->relationship('wali', 'nama')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->nama_tampil)
                     ->searchable()
                     ->preload()
                     ->nullable(),

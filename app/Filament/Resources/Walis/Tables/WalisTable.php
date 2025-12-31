@@ -16,8 +16,15 @@ class WalisTable
             ->columns([
                 TextColumn::make('nama')
                     ->label('Nama Wali')
+                    ->formatStateUsing(fn ($state, $record) => $record->nama_tampil)
                     ->searchable()
                     ->sortable(),
+
+                TextColumn::make('salutation')
+                    ->label('Panggilan')
+                    ->badge()
+                    ->color('gray')
+                    ->toggleable(isToggledHiddenByDefault: true),
 
                 TextColumn::make('user.name')
                     ->label('Akun User')

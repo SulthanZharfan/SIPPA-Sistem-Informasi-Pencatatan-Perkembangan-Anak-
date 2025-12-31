@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Walis\Schemas;
 
+use App\Models\Wali;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -28,9 +29,17 @@ class WaliForm
                     ->required()
                     ->helperText('Pilih akun user yang sudah diberi role wali.'),
 
+                Select::make('salutation')
+                    ->label('Panggilan')
+                    ->options(Wali::salutationOptions())
+                    ->placeholder('Tanpa panggilan')
+                    ->native(false)
+                    ->nullable(),
+
                 TextInput::make('nama')
                     ->label('Nama Wali')
                     ->required()
+                    ->helperText('Isi nama tanpa Bapak/Ibu.')
                     ->maxLength(255),
 
                 TextInput::make('telepon')

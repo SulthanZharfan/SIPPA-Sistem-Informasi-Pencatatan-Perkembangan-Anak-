@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Walis\Pages;
 
 use App\Filament\Resources\Walis\WaliResource;
+use App\Models\Wali;
 use Filament\Actions\DeleteAction;
 use App\Filament\Pages\EditRecordRedirect;
 use Filament\Actions\Action;
@@ -29,6 +30,13 @@ class EditWali extends EditRecordRedirect
     {
         return parent::getCancelFormAction()
             ->label('Batal');
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $data['nama'] = Wali::sanitizeNama($data['nama'] ?? null);
+
+        return $data;
     }
 }
 
