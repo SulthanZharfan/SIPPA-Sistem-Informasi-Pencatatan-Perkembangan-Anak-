@@ -10,6 +10,21 @@ class CreateTahunAjaran extends CreateRecordRedirect
 {
     protected static string $resource = TahunAjaranResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Tambah Tahun Ajaran';
+    }
+
+    public function getHeading(): string
+    {
+        return 'Tambah Tahun Ajaran';
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Tambah';
+    }
+
     protected function getCreateFormAction(): Action
     {
         return parent::getCreateFormAction()
@@ -28,4 +43,3 @@ class CreateTahunAjaran extends CreateRecordRedirect
             ->label('Batal');
     }
 }
-

@@ -10,6 +10,21 @@ class CreateIndikatorPerkembangan extends CreateRecordRedirect
 {
     protected static string $resource = IndikatorPerkembanganResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Tambah Indikator Perkembangan';
+    }
+
+    public function getHeading(): string
+    {
+        return 'Tambah Indikator Perkembangan';
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Tambah';
+    }
+
     protected function getCreateFormAction(): Action
     {
         return parent::getCreateFormAction()
@@ -28,4 +43,3 @@ class CreateIndikatorPerkembangan extends CreateRecordRedirect
             ->label('Batal');
     }
 }
-

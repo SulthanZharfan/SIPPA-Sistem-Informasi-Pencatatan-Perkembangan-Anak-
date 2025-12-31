@@ -11,6 +11,21 @@ class CreateWali extends CreateRecordRedirect
 {
     protected static string $resource = WaliResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Tambah Wali Murid';
+    }
+
+    public function getHeading(): string
+    {
+        return 'Tambah Wali Murid';
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Tambah';
+    }
+
     protected function getCreateFormAction(): Action
     {
         return parent::getCreateFormAction()
@@ -36,4 +51,3 @@ class CreateWali extends CreateRecordRedirect
         return $data;
     }
 }
-

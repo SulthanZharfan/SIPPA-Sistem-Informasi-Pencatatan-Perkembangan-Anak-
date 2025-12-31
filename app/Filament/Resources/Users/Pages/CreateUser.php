@@ -10,6 +10,21 @@ class CreateUser extends CreateRecordRedirect
 {
     protected static string $resource = UserResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Tambah Pengguna';
+    }
+
+    public function getHeading(): string
+    {
+        return 'Tambah Pengguna';
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Tambah';
+    }
+
     protected function getCreateFormAction(): Action
     {
         return parent::getCreateFormAction()
@@ -28,4 +43,3 @@ class CreateUser extends CreateRecordRedirect
             ->label('Batal');
     }
 }
-

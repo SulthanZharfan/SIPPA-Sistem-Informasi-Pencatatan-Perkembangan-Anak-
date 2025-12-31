@@ -10,6 +10,21 @@ class CreateKelas extends CreateRecordRedirect
 {
     protected static string $resource = KelasResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Tambah Kelas';
+    }
+
+    public function getHeading(): string
+    {
+        return 'Tambah Kelas';
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Tambah';
+    }
+
     protected function getCreateFormAction(): Action
     {
         return parent::getCreateFormAction()
@@ -28,4 +43,3 @@ class CreateKelas extends CreateRecordRedirect
             ->label('Batal');
     }
 }
-

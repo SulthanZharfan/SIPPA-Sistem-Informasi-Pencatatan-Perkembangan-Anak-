@@ -11,6 +11,21 @@ class EditUser extends EditRecordRedirect
 {
     protected static string $resource = UserResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Ubah Pengguna';
+    }
+
+    public function getHeading(): string
+    {
+        return 'Ubah Pengguna';
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Ubah';
+    }
+
     protected function getHeaderActions(): array
     {
         return [
@@ -31,4 +46,3 @@ class EditUser extends EditRecordRedirect
             ->label('Batal');
     }
 }
-

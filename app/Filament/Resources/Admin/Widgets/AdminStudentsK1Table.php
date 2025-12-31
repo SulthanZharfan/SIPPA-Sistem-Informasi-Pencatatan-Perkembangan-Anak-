@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Admin\Widgets;
 use App\Models\Siswa;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Enums\PaginationMode;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,6 +17,14 @@ class AdminStudentsK1Table extends TableWidget
     protected static bool $isLazy = false;
 
     protected int $defaultTableRecordsPerPage = 6;
+
+    public function table(Table $table): Table
+    {
+        return $table
+            ->paginationMode(PaginationMode::Default)
+            ->paginationPageOptions([6, 10, 25])
+            ->extremePaginationLinks();
+    }
 
     protected function getTableQuery(): Builder
     {

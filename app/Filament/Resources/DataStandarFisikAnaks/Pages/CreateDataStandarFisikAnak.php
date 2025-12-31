@@ -10,6 +10,21 @@ class CreateDataStandarFisikAnak extends CreateRecordRedirect
 {
     protected static string $resource = DataStandarFisikAnakResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Tambah Data Standar Fisik';
+    }
+
+    public function getHeading(): string
+    {
+        return 'Tambah Data Standar Fisik';
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Tambah';
+    }
+
     protected function getCreateFormAction(): Action
     {
         return parent::getCreateFormAction()
@@ -28,4 +43,3 @@ class CreateDataStandarFisikAnak extends CreateRecordRedirect
             ->label('Batal');
     }
 }
-

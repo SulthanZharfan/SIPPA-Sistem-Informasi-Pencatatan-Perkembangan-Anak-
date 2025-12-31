@@ -16,7 +16,8 @@ class SiswasTable
             ->columns([
                 TextColumn::make('nis')
                     ->label('NISN')
-                    ->searchable(),
+                    ->searchable()
+                    ->sortable(),
 
                 TextColumn::make('nama')
                     ->label('Nama Siswa')

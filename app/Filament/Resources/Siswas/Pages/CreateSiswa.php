@@ -10,6 +10,21 @@ class CreateSiswa extends CreateRecordRedirect
 {
     protected static string $resource = SiswaResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Tambah Siswa';
+    }
+
+    public function getHeading(): string
+    {
+        return 'Tambah Siswa';
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Tambah';
+    }
+
     protected function getCreateFormAction(): Action
     {
         return parent::getCreateFormAction()
@@ -28,4 +43,3 @@ class CreateSiswa extends CreateRecordRedirect
             ->label('Batal');
     }
 }
-

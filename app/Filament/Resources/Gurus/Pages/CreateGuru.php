@@ -10,6 +10,21 @@ class CreateGuru extends CreateRecordRedirect
 {
     protected static string $resource = GuruResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Tambah Guru';
+    }
+
+    public function getHeading(): string
+    {
+        return 'Tambah Guru';
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Tambah';
+    }
+
     protected function getCreateFormAction(): Action
     {
         return parent::getCreateFormAction()
@@ -28,4 +43,3 @@ class CreateGuru extends CreateRecordRedirect
             ->label('Batal');
     }
 }
-
