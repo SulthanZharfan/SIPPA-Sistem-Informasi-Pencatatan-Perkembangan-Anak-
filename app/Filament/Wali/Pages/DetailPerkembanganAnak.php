@@ -19,7 +19,7 @@ class DetailPerkembanganAnak extends Page
 
     protected static ?string $title = 'Detail Perkembangan Anak';
 
-    protected static string|UnitEnum|null $navigationGroup = null;
+    protected static string|UnitEnum|null $navigationGroup = 'Informasi Anak';
 
     protected string $view = 'filament-panels::pages.page';
 

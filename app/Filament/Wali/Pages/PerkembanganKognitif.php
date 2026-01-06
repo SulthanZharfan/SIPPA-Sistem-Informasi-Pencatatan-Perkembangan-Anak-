@@ -16,10 +16,12 @@ use Filament\Schemas\Components\EmbeddedSchema;
 use Filament\Schemas\Components\Form;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Html;
+use Filament\Schemas\Components\Image;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use BackedEnum;
 use UnitEnum;
@@ -36,13 +38,13 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
 
     protected static ?string $title = 'Perkembangan Kognitif Anak';
 
-    protected static string|UnitEnum|null $navigationGroup = null;
+    protected static string|UnitEnum|null $navigationGroup = 'Informasi Anak';
 
     protected string $view = 'filament-panels::pages.page';
 
     public ?array $filters = [];
 
-    public array $expanded = [];
+    public ?int $expandedId = null;
 
     protected ?Wali $wali = null;
 
@@ -69,7 +71,7 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
             return $schema->components([
                 Section::make('Perkembangan Kognitif')
                     ->schema([
-                        Text::make('Belum ada data anak yang terhubung dengan akun wali ini.'),
+                        Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Belum ada data anak yang terhubung dengan akun wali ini.</div>')),
                     ]),
             ]);
         }
@@ -91,13 +93,13 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
                 ->schema([
                     Grid::make(2)
                         ->schema([
-                            Text::make('Semester: ' . ($summary['semester'] ?? '-')),
-                            Text::make('Total indikator terisi: ' . ($summary['total_indikator'] ?? 0)),
-                            Text::make('Tanggal catatan terakhir: ' . ($summary['tanggal_terakhir'] ?? '-')),
-                            Text::make('Guru terakhir: ' . ($summary['guru_terakhir'] ?? '-')),
+                            Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Semester: ' . e($summary['semester'] ?? '-') . '</div>')),
+                            Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Total indikator terisi: ' . e((string) ($summary['total_indikator'] ?? 0)) . '</div>')),
+                            Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Tanggal catatan terakhir: ' . e($summary['tanggal_terakhir'] ?? '-') . '</div>')),
+                            Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Guru terakhir: ' . e($summary['guru_terakhir'] ?? '-') . '</div>')),
                         ]),
                     Html::make(new HtmlString(
-                        '<div style="margin-top: 0.5rem; font-size: 0.875rem; line-height: 1.5; color: #6b7280;">' .
+                        '<div class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-100">' .
                             'Informasi ditampilkan dari catatan perkembangan yang diinput oleh guru melalui sistem.' .
                         '</div>'
                     )),
@@ -113,19 +115,31 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
                 : '-';
             $guruLabel = $record?->guru?->nama ?? '-';
             $narasiText = $record?->narasi ?? '';
-            $isExpanded = $this->expanded[$indikator['id']] ?? false;
+            $isExpanded = $this->expandedId === $indikator['id'];
             $canToggle = mb_strlen(trim($narasiText)) > self::NARASI_LIMIT;
 
             $sectionSchema = [
                 Grid::make(2)
                     ->schema([
-                        Text::make('Tanggal: ' . $tanggalLabel),
-                        Text::make('Guru: ' . $guruLabel),
+                        Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Tanggal: ' . e($tanggalLabel) . '</div>')),
+                        Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Guru: ' . e($guruLabel) . '</div>')),
                     ]),
             ];
 
             if ($record) {
                 $sectionSchema[] = Html::make($this->buildNarasiHtml($narasiText, $isExpanded));
+                $sectionSchema[] = Section::make('Foto')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Dokumentasi perkembangan untuk indikator ini.</div>')),
+                                Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Belum ada foto yang diunggah.</div>'))
+                                    ->hidden(fn () => ! blank($record?->foto)),
+                            ]),
+                        Html::make(fn () => $this->buildFotoHtml($record?->foto, $indikatorLabel))
+                            ->hidden(fn () => blank($record?->foto)),
+                    ])
+                    ->columns(1);
                 if ($canToggle) {
                     $sectionSchema[] = Actions::make([
                         Action::make('toggle_' . $indikator['id'])
@@ -135,7 +149,7 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
                     ]);
                 }
             } else {
-                $sectionSchema[] = Text::make('Belum ada catatan untuk indikator ini pada semester yang dipilih.');
+                $sectionSchema[] = Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Belum ada catatan untuk indikator ini pada semester yang dipilih.</div>'));
             }
 
             $components[] = Section::make($indikatorLabel)
@@ -216,7 +230,7 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
         $text = trim($text ?? '');
 
         if ($text === '') {
-            return new HtmlString('<p style="margin: 0;">Belum ada narasi perkembangan.</p>');
+            return new HtmlString('<p class="text-gray-900 dark:text-gray-100" style="margin: 0;">Belum ada narasi perkembangan.</p>');
         }
 
         $displayText = $expanded ? $text : $this->truncateText($text);
@@ -226,7 +240,7 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
             ->map(function (string $paragraph): string {
                 $safe = nl2br(e(trim($paragraph)));
 
-                return '<p style="text-indent: 2em; margin: 0 0 1em 0; text-align: justify; line-height: 1.6;">' . $safe . '</p>';
+                return '<p class="text-gray-900 dark:text-gray-100" style="text-indent: 2em; margin: 0 0 1em 0; text-align: justify; line-height: 1.6;">' . $safe . '</p>';
             })
             ->implode('');
 
@@ -366,8 +380,48 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
         return $this->wali;
     }
 
+    protected function getFotoUrl(?string $path): string
+    {
+        $path = trim((string) $path);
+
+        if ($path === '') {
+            return '';
+        }
+
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://') || str_starts_with($path, '/')) {
+            return $path;
+        }
+
+        $diskName = config('filesystems.default', 'local');
+        $disk = Storage::disk($diskName);
+
+        if ($disk->providesTemporaryUrls()) {
+            return $disk->temporaryUrl($path, now()->addMinutes(30));
+        }
+
+        return $disk->url($path);
+    }
+
+    protected function buildFotoHtml(?string $path, string $indikatorLabel): HtmlString
+    {
+        $url = $this->getFotoUrl($path);
+
+        if ($url === '') {
+            return new HtmlString('');
+        }
+
+        $alt = 'Foto perkembangan ' . $indikatorLabel;
+        $html = '<div style="display: flex; justify-content: center;">' .
+            '<div style="width: 100%; max-width: 520px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px;">' .
+                '<img src="' . e($url) . '" alt="' . e($alt) . '" style="display: block; width: 100%; max-height: 320px; object-fit: contain; border-radius: 8px;" />' .
+            '</div>' .
+        '</div>';
+
+        return new HtmlString($html);
+    }
+
     public function toggleExpanded(int $indikatorId): void
     {
-        $this->expanded[$indikatorId] = ! ($this->expanded[$indikatorId] ?? false);
+        $this->expandedId = $this->expandedId === $indikatorId ? null : $indikatorId;
     }
 }

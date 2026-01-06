@@ -16,6 +16,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use BackedEnum;
 use UnitEnum;
@@ -30,7 +31,7 @@ class PerkembanganFisik extends Page implements Forms\Contracts\HasForms
 
     protected static ?string $title = 'Perkembangan Fisik Anak';
 
-    protected static string|UnitEnum|null $navigationGroup = null;
+    protected static string|UnitEnum|null $navigationGroup = 'Informasi Anak';
 
     protected string $view = 'filament-panels::pages.page';
 
@@ -61,7 +62,8 @@ class PerkembanganFisik extends Page implements Forms\Contracts\HasForms
             ]);
         }
 
-        $latest = $this->getLatestFisik($siswa->id, null, null);
+        $latestRecord = $this->getLatestFisikRecord($siswa->id, null, null);
+        $latest = $this->formatLatestFisik($latestRecord, $siswa->id, null, null);
         $rekomendasi = $this->getFisikRecommendation($latest['status_raw'] ?? null);
 
         return $schema->components([
@@ -72,7 +74,11 @@ class PerkembanganFisik extends Page implements Forms\Contracts\HasForms
                             Text::make('Status Terbaru: ' . ($latest['status'] ?? '-'))
                                 ->badge()
                                 ->color($latest['status_color'] ?? 'gray'),
-                            Text::make('Tanggal Terbaru: ' . ($latest['tanggal'] ?? '-')),
+                            Html::make(new HtmlString(
+                                '<div class="text-sm text-gray-900 dark:text-gray-100">Tanggal Terbaru: ' .
+                                    e($latest['tanggal'] ?? '-') .
+                                '</div>'
+                            )),
                         ]),
                     Livewire::make(WaliPerkembanganFisikChart::class, fn () => [
                         'siswaId' => $siswa->id,
@@ -86,10 +92,10 @@ class PerkembanganFisik extends Page implements Forms\Contracts\HasForms
             Section::make('Usulan / Rekomendasi')
                 ->schema([
                     Html::make(new HtmlString(
-                        '<div style="font-size: 1rem; line-height: 1.65; color: #1f2937;">' .
+                        '<div class="text-base leading-relaxed text-gray-900 dark:text-gray-100">' .
                             e($rekomendasi) .
                         '</div>' .
-                        '<div style="margin-top: 0.5rem; font-size: 0.875rem; line-height: 1.5; color: #6b7280;">' .
+                        '<div class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-100">' .
                             'Catatan: Rekomendasi ini merupakan hasil pengolahan sistem dan digunakan sebagai bahan pertimbangan pendukung.' .
                         '</div>'
                     )),
@@ -105,10 +111,30 @@ class PerkembanganFisik extends Page implements Forms\Contracts\HasForms
                         'endDate' => null,
                     ])->key('wali-fisik-table-' . $siswa->id . '-all'),
                 ]),
+
+            Section::make('Foto')
+                ->schema([
+                    Grid::make(2)
+                        ->schema([
+                            Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Dokumentasi perkembangan fisik untuk data terbaru.</div>')),
+                            Text::make('Belum ada foto yang diunggah.')
+                                ->hidden(fn () => ! blank($latestRecord?->foto)),
+                        ]),
+                    Html::make(fn () => $this->buildFotoHtml($latestRecord?->foto, 'Foto perkembangan fisik'))
+                        ->hidden(fn () => blank($latestRecord?->foto)),
+                ])
+                ->columnSpanFull(),
         ]);
     }
 
     protected function getLatestFisik(int $siswaId, ?string $startDate, ?string $endDate): array
+    {
+        $latest = $this->getLatestFisikRecord($siswaId, $startDate, $endDate);
+
+        return $this->formatLatestFisik($latest, $siswaId, $startDate, $endDate);
+    }
+
+    protected function getLatestFisikRecord(int $siswaId, ?string $startDate, ?string $endDate): ?PerkembanganFisikModel
     {
         $latest = PerkembanganFisikModel::query()
             ->where('siswa_id', $siswaId)
@@ -124,6 +150,11 @@ class PerkembanganFisik extends Page implements Forms\Contracts\HasForms
                 ->first();
         }
 
+        return $latest;
+    }
+
+    protected function formatLatestFisik(?PerkembanganFisikModel $latest, int $siswaId, ?string $startDate, ?string $endDate): array
+    {
         $statusRaw = $latest?->status_ringkas;
         $statusLabel = match ($statusRaw) {
             'normal' => 'Normal',
@@ -174,6 +205,45 @@ class PerkembanganFisik extends Page implements Forms\Contracts\HasForms
             ->first();
 
         return $this->wali;
+    }
+
+    protected function getFotoUrl(?string $path): string
+    {
+        $path = trim((string) $path);
+
+        if ($path === '') {
+            return '';
+        }
+
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://') || str_starts_with($path, '/')) {
+            return $path;
+        }
+
+        $diskName = config('filesystems.default', 'local');
+        $disk = Storage::disk($diskName);
+
+        if ($disk->providesTemporaryUrls()) {
+            return $disk->temporaryUrl($path, now()->addMinutes(30));
+        }
+
+        return $disk->url($path);
+    }
+
+    protected function buildFotoHtml(?string $path, string $label): HtmlString
+    {
+        $url = $this->getFotoUrl($path);
+
+        if ($url === '') {
+            return new HtmlString('');
+        }
+
+        $html = '<div style="display: flex; justify-content: center;">' .
+            '<div style="width: 100%; max-width: 520px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px;">' .
+                '<img src="' . e($url) . '" alt="' . e($label) . '" style="display: block; width: 100%; max-height: 320px; object-fit: contain; border-radius: 8px;" />' .
+            '</div>' .
+        '</div>';
+
+        return new HtmlString($html);
     }
 
 }

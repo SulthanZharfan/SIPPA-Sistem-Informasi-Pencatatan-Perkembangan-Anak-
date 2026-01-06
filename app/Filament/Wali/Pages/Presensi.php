@@ -38,7 +38,7 @@ class Presensi extends Page implements Forms\Contracts\HasForms, HasTable
 
     protected static ?string $title = 'Presensi Anak';
 
-    protected static string|UnitEnum|null $navigationGroup = null;
+    protected static string|UnitEnum|null $navigationGroup = 'Informasi Anak';
 
     protected string $view = 'filament-panels::pages.page';
 

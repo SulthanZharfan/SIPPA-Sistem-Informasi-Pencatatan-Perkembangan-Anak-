@@ -6,7 +6,6 @@ use App\Filament\Kepsek\Resources\PerkembanganKognitifs\Pages\ListPerkembanganKo
 use App\Filament\Kepsek\Resources\PerkembanganKognitifs\Pages\ViewPerkembanganKognitif;
 use App\Models\PerkembanganKognitif;
 use Filament\Actions;
-use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
@@ -15,6 +14,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Enums\PaginationMode;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\HtmlString;
 use BackedEnum;
 use UnitEnum;
 
@@ -42,11 +43,22 @@ class PerkembanganKognitifResource extends Resource
                         ->schema([
                             TextEntry::make('siswa.nama')->label('Siswa'),
                             TextEntry::make('siswa.kelas.nama')->label('Kelas'),
-                            TextEntry::make('guru.nama')->label('Guru'),
-                            TextEntry::make('indikator.deskripsi')->label('Indikator'),
-                            TextEntry::make('status_persetujuan')
-                                ->label('Status Persetujuan')
-                                ->badge()
+                    TextEntry::make('guru.nama')->label('Guru'),
+                    TextEntry::make('indikator.aspek')
+                        ->label('Indikator')
+                        ->formatStateUsing(function (?string $state, $record): string {
+                            $indikator = $record?->indikator;
+                            $label = $indikator?->aspek ?: $indikator?->deskripsi ?: '-';
+
+                            if (str_starts_with($label, 'Berisikan Penjelasan ')) {
+                                $label = substr($label, strlen('Berisikan Penjelasan '));
+                            }
+
+                            return $label;
+                        }),
+                    TextEntry::make('status_persetujuan')
+                        ->label('Status Persetujuan')
+                        ->badge()
                                 ->formatStateUsing(fn (?string $state) => match ($state) {
                                     'disetujui' => 'Disetujui',
                                     'revisi' => 'Revisi',
@@ -95,10 +107,35 @@ class PerkembanganKognitifResource extends Resource
 
             Section::make('Foto')
                 ->schema([
-                    ImageEntry::make('foto')
+                    TextEntry::make('foto')
                         ->label('')
-                        ->height('200px')
-                        ->visibility('public'),
+                        ->html()
+                        ->formatStateUsing(function (?string $state): HtmlString {
+                            $path = trim((string) $state);
+
+                            if ($path === '') {
+                                return new HtmlString('');
+                            }
+
+                            if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://') || str_starts_with($path, '/')) {
+                                $url = $path;
+                            } else {
+                                $diskName = config('filesystems.default', 'local');
+                                $disk = Storage::disk($diskName);
+
+                                $url = $disk->providesTemporaryUrls()
+                                    ? $disk->temporaryUrl($path, now()->addMinutes(30))
+                                    : $disk->url($path);
+                            }
+
+                            return new HtmlString(
+                                '<div style="display: flex; justify-content: center;">' .
+                                    '<div style="width: 100%; max-width: 520px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px;">' .
+                                        '<img src="' . e($url) . '" alt="Foto perkembangan kognitif" style="display: block; width: 100%; max-height: 320px; object-fit: contain; border-radius: 8px;" />' .
+                                    '</div>' .
+                                '</div>'
+                            );
+                        }),
                 ])
                 ->hidden(fn ($record) => blank($record?->foto))
                 ->columnSpanFull(),
@@ -155,7 +192,9 @@ class PerkembanganKognitifResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->actions([
-                Actions\ViewAction::make()->label('Detail'),
+                Actions\ViewAction::make()
+                    ->label('Detail')
+                    ->url(fn (PerkembanganKognitif $record): string => static::getUrl('view', ['record' => $record])),
                 Actions\Action::make('approve')
                     ->label('Setujui')
                     ->icon('heroicon-o-check-circle')

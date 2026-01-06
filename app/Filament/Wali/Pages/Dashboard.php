@@ -5,6 +5,7 @@ namespace App\Filament\Wali\Pages;
 use App\Filament\Wali\Widgets\WaliPerkembanganFisikChart;
 use App\Filament\Wali\Widgets\WaliPerkembanganKognitifTable;
 use App\Filament\Wali\Widgets\WaliPresensiTable;
+use App\Filament\Wali\Widgets\WaliStatsOverview;
 use App\Models\PerkembanganFisik;
 use App\Models\Presensi;
 use App\Models\Wali;
@@ -68,9 +69,9 @@ class Dashboard extends Page implements Forms\Contracts\HasForms
     public function content(Schema $schema): Schema
     {
         $siswa = $this->getSelectedSiswa();
-
         if (! $siswa) {
             return $schema->components([
+                Livewire::make(WaliStatsOverview::class)->columnSpanFull(),
                 Section::make('Informasi Umum Anak')
                     ->schema([
                         Text::make('Belum ada data anak yang terhubung dengan akun wali ini.'),
@@ -84,15 +85,16 @@ class Dashboard extends Page implements Forms\Contracts\HasForms
         $fisikRekomendasiText = $this->getFisikRecommendation($fisikLatest['status_raw'] ?? null);
 
         return $schema->components([
+            Livewire::make(WaliStatsOverview::class)->columnSpanFull(),
             Section::make('Informasi Umum Anak')
                 ->schema([
                     Grid::make(2)
                         ->schema([
-                            Text::make('Nama: ' . ($siswa->nama ?? '-')),
-                            Text::make('NISN: ' . ($siswa->nis ?? '-')),
-                            Text::make('Kelas: ' . ($siswa->kelas?->nama ?? '-')),
-                            Text::make('Guru Kelas: ' . ($siswa->kelas?->guru?->nama ?? '-')),
-                            Text::make('Wali Murid: ' . ($siswa->wali?->nama_tampil ?? '-')),
+                            Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Nama: ' . e($siswa->nama ?? '-') . '</div>')),
+                            Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">NISN: ' . e($siswa->nis ?? '-') . '</div>')),
+                            Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Kelas: ' . e($siswa->kelas?->nama ?? '-') . '</div>')),
+                            Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Guru Kelas: ' . e($siswa->kelas?->guru?->nama ?? '-') . '</div>')),
+                            Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Wali Murid: ' . e($siswa->wali?->nama_tampil ?? '-') . '</div>')),
                         ]),
                 ]),
 
@@ -142,10 +144,10 @@ class Dashboard extends Page implements Forms\Contracts\HasForms
             Section::make('Usulan / Rekomendasi')
                 ->schema([
                     Html::make(new HtmlString(
-                        '<div style="font-size: 1rem; line-height: 1.65; color: #1f2937;">' .
+                        '<div class="text-base leading-relaxed text-gray-900 dark:text-gray-100">' .
                             e($fisikRekomendasiText) .
                         '</div>' .
-                        '<div style="margin-top: 0.5rem; font-size: 0.875rem; line-height: 1.5; color: #6b7280;">' .
+                        '<div class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-100">' .
                             'Catatan: Rekomendasi ini merupakan hasil pengolahan sistem dan digunakan sebagai bahan pertimbangan pendukung.' .
                         '</div>'
                     )),

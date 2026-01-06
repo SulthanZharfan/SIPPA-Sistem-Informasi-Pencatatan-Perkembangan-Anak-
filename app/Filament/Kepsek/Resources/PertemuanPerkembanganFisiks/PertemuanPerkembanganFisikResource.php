@@ -148,7 +148,9 @@ class PertemuanPerkembanganFisikResource extends Resource
                     ]),
             ])
             ->actions([
-                Actions\ViewAction::make()->label('Detail'),
+                Actions\ViewAction::make()
+                    ->label('Detail')
+                    ->url(fn (PertemuanPerkembanganFisik $record): string => static::getUrl('view', ['record' => $record])),
 
                 Actions\Action::make('approve')
                     ->label('Setujui')

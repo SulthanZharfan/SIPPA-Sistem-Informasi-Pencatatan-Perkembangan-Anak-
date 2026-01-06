@@ -11,6 +11,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -51,6 +52,39 @@ class KepsekPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->renderHook(
+                PanelsRenderHook::BODY_END,
+                fn (): string => <<<HTML
+                    <style>
+                        @media (prefers-color-scheme: dark) {
+                            .dark .fi-wi-stats-overview .fi-stat {
+                                background: #161a20 !important;
+                                border-color: #1f252f !important;
+                                color: #e5e7eb;
+                            }
+                            .dark .fi-wi-stats-overview [style*="background"] {
+                                background: #161a20 !important;
+                                border-color: #1f252f !important;
+                            }
+                            .dark .fi-wi-stats-overview .fi-stat .fi-stat-label {
+                                color: #cbd5e1;
+                            }
+                            .dark .fi-wi-stats-overview .fi-stat .fi-stat-value {
+                                color: #f8fafc;
+                            }
+                            .dark .fi-wi-stats-overview .fi-stat .fi-stat-description {
+                                color: #94a3b8;
+                            }
+                            .dark .fi-tabs .fi-tabs-item,
+                            .dark .fi-tabs .fi-tabs-item .fi-tabs-item-label,
+                            .dark .fi-tabs .fi-tabs-item.fi-tabs-item-active,
+                            .dark .fi-tabs .fi-tabs-item.fi-tabs-item-active .fi-tabs-item-label {
+                                color: #f8fafc;
+                            }
+                        }
+                    </style>
+                HTML
+            )
             ->authMiddleware([
                 Authenticate::class,
             ]);

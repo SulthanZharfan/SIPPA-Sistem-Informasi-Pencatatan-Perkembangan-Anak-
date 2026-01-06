@@ -1,7 +1,7 @@
-# SIPPA – Sistem Informasi Pencatatan Perkembangan Anak  
-TK Agriananda – Universitas Pancasila
+# SIPPA - Sistem Informasi Pencatatan Perkembangan Anak
+TK Agriananda - Universitas Pancasila
 
-SIPPA adalah aplikasi sistem informasi untuk mengelola pencatatan perkembangan fisik dan kognitif anak TK Agriananda.  
+SIPPA adalah aplikasi sistem informasi untuk mengelola pencatatan perkembangan fisik dan kognitif anak TK Agriananda.
 Aplikasi dibangun menggunakan **Laravel 12**, **Filament v4 Multi-Panel**, **Breeze**, dan **Spatie Role Permission**.
 
 Sistem menyediakan **4 panel terpisah**:
@@ -17,125 +17,145 @@ Login tetap menggunakan Breeze di `/login`, lalu user diarahkan otomatis ke pane
 
 ---
 
-# ✔ Checklist Perkembangan Proyek
+# Ringkasan Fitur (Sesuai Kodingan)
 
-## 1. Setup & Pondasi
-- [x] Instalasi Laravel Project  
-- [x] Instalasi Breeze (sistem login)  
-- [x] Instalasi Spatie Role Permission  
-- [x] Instalasi Filament v4  
-- [x] Pembuatan 4 panel (admin, guru, kepsek, wali)  
-- [x] Implementasi `canAccessPanel()`  
-- [x] Redirect login ke panel sesuai role  
-- [x] Konfigurasi multi-panel  
-
----
-
-## 2. Database & Model
-- [x] Migration sesuai ERD  
-- [x] Relationship model  
-- [x] Seeder Standar Fisik  
-- [x] Seeder Indikator Perkembangan  
-- [x] Testing database dasar  
-
----
-
-## 3. Authentication & Authorization
-- [x] Login Breeze  
-- [x] Logout  
-- [x] Role admin, guru, kepsek, wali  
-- [x] Proteksi akses panel  
-- [x] Redirect otomatis berdasarkan role  
-- [x] `canAccessPanel()` pada User  
-
----
-
-# 4. Panel Admin – Master Data (Filament v4)
+## 1. Panel Admin - Master Data dan User
 Semua dikelola menggunakan Filament v4 Multi-Panel.
-
-- [X] Tahun Ajaran  
-- [X] Kelas  
-- [X] Guru  
-- [X] Wali  
-- [X] Siswa  
-- [X] Indikator Perkembangan  
-- [X] Standar Fisik  
-- [X] User Management  
+- [x] Tahun Ajaran
+- [x] Kelas
+- [x] Guru
+- [x] Wali
+- [x] Siswa
+- [x] Indikator Perkembangan
+- [x] Data Standar Fisik Anak
+- [x] User Management + assign role (admin, guru, kepsek, wali)
+- [x] Dashboard admin + widget ringkas (statistik, tabel siswa K1/K2, tabel guru/kepsek/wali/kelas)
 
 ---
 
-# 5. Panel Guru – Filament Panel
+## 2. Panel Guru - Pencatatan Harian
 
-### Perkembangan Fisik
-- [x] Input data fisik  
-- [X] Hitung status TB/BB/LK otomatis  
-- [X] Status total otomatis  
-- [X] Rekomendasi otomatis  
-- [X] Grafik perkembangan fisik  
+### Perkembangan Fisik (berbasis pertemuan)
+- [x] Buat/edit pertemuan perkembangan fisik
+- [x] Input pengukuran per siswa (TB/BB/LK + foto)
+- [x] Hitung kategori TB/BB/LK otomatis
+- [x] Status ringkas otomatis + preview hasil
 
 ### Perkembangan Kognitif
-- [x] Input narasi + upload foto  
-- [x] Pemilihan indikator  
-- [x] Status menunggu / revisi / disetujui  
-- [x] Edit data revisi  
+- [x] Pilih siswa + indikator perkembangan
+- [x] Input narasi
+- [x] Upload foto (opsional)
+- [x] Status persetujuan: menunggu (default), disetujui, revisi
+
+### Presensi (berbasis pertemuan)
+- [x] Buat/edit pertemuan presensi
+- [x] Input presensi per siswa (hadir/izin/sakit/alfa + keterangan)
+
+---
+
+## 3. Panel Kepala Sekolah - Monitoring dan Approval
+
+### Monitoring Perkembangan Fisik
+- [x] Lihat daftar pertemuan + detail per siswa
+- [x] Approve / minta revisi
+- [x] Status pertemuan: pending / approved / rejected
+
+### Monitoring Perkembangan Kognitif
+- [x] Lihat detail narasi + foto
+- [x] Approve / minta revisi
+
+### Rekap Presensi
+- [x] Harian / Mingguan / Bulanan
+- [x] Filter Tahun Ajaran, Kelas, Guru, Periode
+- [x] Lihat detail rekap per periode
+
+---
+
+## 4. Panel Wali Murid - Informasi Anak
+
+### Dashboard Wali
+- [x] Informasi anak (nama, NIS/NISN, kelas, guru, wali)
+- [x] Ringkasan presensi + tabel presensi (filter mingguan/bulanan/semua)
+- [x] Grafik perkembangan fisik + status terbaru + rekomendasi
+- [x] Ringkasan perkembangan kognitif
 
 ### Presensi
-- [x] Input presensi harian  
-- [x] Rekap harian/mingguan/bulanan  
+- [x] Tabel presensi anak + filter periode
+
+### Perkembangan Fisik
+- [x] Grafik dan tabel data fisik
+- [x] Status terbaru + rekomendasi
+- [x] Foto data terbaru (jika ada)
+
+### Perkembangan Kognitif
+- [x] Filter Tahun Ajaran/Semester
+- [x] Ringkasan semester (total indikator, tanggal dan guru terakhir)
+- [x] Detail per indikator + narasi + foto (expand/collapse)
+
+### Laporan Semester (PDF)
+- [x] Identitas siswa
+- [x] Rekap presensi
+- [x] Ringkasan fisik (status terakhir + rekomendasi)
+- [x] Ringkasan kognitif per indikator
+- [x] Nomor laporan otomatis
+- [x] Export PDF
 
 ---
 
-# 6. Panel Kepala Sekolah – Filament Panel
-- [x] Review & Approval perkembangan fisik  
-- [x] Review & Approval perkembangan kognitif  
-- [x] Lihat rekap presensi  
-- [x] Lihat statistik perkembangan  
+# Checklist Perkembangan Proyek
+
+## 1. Setup dan Pondasi
+- [x] Instalasi Laravel Project
+- [x] Instalasi Breeze (sistem login)
+- [x] Instalasi Spatie Role Permission
+- [x] Instalasi Filament v4
+- [x] Pembuatan 4 panel (admin, guru, kepsek, wali)
+- [x] Implementasi `canAccessPanel()`
+- [x] Redirect login ke panel sesuai role
+- [x] Konfigurasi multi-panel
 
 ---
 
-# 7. Panel Wali Murid – Filament Panel
-- [ ] Dashboard perkembangan anak  
-- [ ] Grafik perkembangan fisik  
-- [ ] Narasi kognitif  
-- [ ] Presensi  
-- [ ] Unduh rapor digital  
+## 2. Database dan Model
+- [x] Migration sesuai ERD
+- [x] Relationship model
+- [x] Seeder Standar Fisik
+- [x] Seeder Indikator Perkembangan
+- [x] Testing database dasar
 
 ---
 
-# 8. Rapor Digital (PDF)
-- [ ] Identitas siswa  
-- [ ] Grafik fisik  
-- [ ] Tabel fisik bulanan  
-- [ ] Narasi kognitif  
-- [ ] Rekomendasi  
-- [ ] Tanda tangan kepala sekolah  
-- [ ] Export PDF  
-
+## 3. Authentication dan Authorization
+- [x] Login Breeze
+- [x] Logout
+- [x] Role admin, guru, kepsek, wali
+- [x] Proteksi akses panel
+- [x] Redirect otomatis berdasarkan role
+- [x] `canAccessPanel()` pada User
 
 ---
 
-# 9. Testing & Finishing
-- [ ] Black Box Testing  
-- [ ] Cleanup kode  
-- [ ] Optimasi query  
-- [ ] Dokumentasi final  
+# 9. Testing dan Finishing
+- [x] Black Box Testing
+- [x] Cleanup kode
+- [x] Optimasi query
+- [x] Dokumentasi final
 
 ---
 
-# 🛠 Teknologi yang Digunakan
-- Laravel 12  
-- Filament v4 Multi-Panel  
-- Laravel Breeze  
-- Spatie Laravel Permission  
-- MySQL  
+# Teknologi yang Digunakan
+- Laravel 12
+- Filament v4 Multi-Panel
+- Laravel Breeze
+- Spatie Laravel Permission
+- MySQL
 - TailwindCSS
-- DomPDF / Snappy PDF  
+- DomPDF / Snappy PDF
 
 ---
 
-# 📌 Arsitektur Sistem
-- Semua role memakai Filament Panel.   
-- Login → redirect sesuai role → masuk ke panel masing-masing.  
-- Panel diamankan oleh `canAccessPanel()`.  
+# Arsitektur Sistem
+- Semua role memakai Filament Panel.
+- Login -> redirect sesuai role -> masuk ke panel masing-masing.
+- Panel diamankan oleh `canAccessPanel()`.
 - Setiap fitur dipisah per panel sesuai tanggung jawabnya.
-

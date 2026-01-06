@@ -38,7 +38,7 @@ class LaporanSemester extends Page implements Forms\Contracts\HasForms
 
     protected static ?string $title = 'Laporan Perkembangan Semester';
 
-    protected static string|UnitEnum|null $navigationGroup = null;
+    protected static string|UnitEnum|null $navigationGroup = 'Informasi Anak';
 
     protected string $view = 'filament-panels::pages.page';
 
@@ -80,9 +80,9 @@ class LaporanSemester extends Page implements Forms\Contracts\HasForms
 
         $components = [
             Html::make(new HtmlString(
-                '<div style="text-align: right; font-size: 0.875rem; color: #6b7280;">' .
-                    'Nomor Laporan: <strong style="color: #111827;">' . e($report['nomor_laporan']) . '</strong>' .
-                    '<div style="font-size: 0.75rem; margin-top: 2px;">Nomor laporan ini dihasilkan secara otomatis oleh sistem.</div>' .
+                '<div style="text-align: right; width: 100%;" class="text-sm text-gray-600 dark:text-gray-100">' .
+                    'Nomor Laporan: <strong class="text-gray-900 dark:text-gray-100">' . e($report['nomor_laporan']) . '</strong>' .
+                    '<div class="mt-0.5 text-xs">Nomor laporan ini dihasilkan secara otomatis oleh sistem.</div>' .
                 '</div>'
             )),
             Section::make('Filter Laporan')
@@ -142,10 +142,10 @@ class LaporanSemester extends Page implements Forms\Contracts\HasForms
                             Html::make($this->buildHeaderItem('LK Terakhir', $report['fisik']['lk'] ?? '-')),
                         ]),
                     Html::make(new HtmlString(
-                        '<div style="font-size: 1rem; line-height: 1.65; color: #1f2937;">' .
+                        '<div class="text-base leading-relaxed text-gray-900 dark:text-gray-100">' .
                             e($report['fisik']['rekomendasi'] ?? '-') .
                         '</div>' .
-                        '<div style="margin-top: 0.5rem; font-size: 0.875rem; line-height: 1.5; color: #6b7280;">' .
+                        '<div class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-100">' .
                             'Catatan: Rekomendasi ini merupakan hasil pengolahan sistem dan digunakan sebagai bahan pertimbangan pendukung.' .
                         '</div>'
                     )),
@@ -174,7 +174,11 @@ class LaporanSemester extends Page implements Forms\Contracts\HasForms
 
         $components[] = Section::make('Penutup')
             ->schema([
-                Text::make('Laporan ini disusun secara otomatis oleh sistem berdasarkan catatan perkembangan anak yang diinput oleh guru selama satu semester dan digunakan sebagai bahan informasi bagi wali murid.'),
+                Html::make(new HtmlString(
+                    '<div class="text-sm text-gray-600 dark:text-gray-100">' .
+                        'Laporan ini disusun secara otomatis oleh sistem berdasarkan catatan perkembangan anak yang diinput oleh guru selama satu semester dan digunakan sebagai bahan informasi bagi wali murid.' .
+                    '</div>'
+                )),
             ]);
 
         return $schema->components($components);
@@ -470,8 +474,8 @@ class LaporanSemester extends Page implements Forms\Contracts\HasForms
     {
         return new HtmlString(
             '<div>' .
-                '<div style="font-size: 0.875rem; color: #6b7280;">' . e($label) . '</div>' .
-                '<div style="font-size: 1rem; color: #111827; font-weight: 500;">' . e($value) . '</div>' .
+                '<div class="text-sm text-gray-600 dark:text-gray-100">' . e($label) . '</div>' .
+                '<div class="text-base text-gray-900 dark:text-gray-100 font-medium">' . e($value) . '</div>' .
             '</div>'
         );
     }

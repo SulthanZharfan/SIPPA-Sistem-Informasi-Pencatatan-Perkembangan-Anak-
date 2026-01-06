@@ -132,10 +132,10 @@ class ViewSiswa extends ViewRecord implements Forms\Contracts\HasForms
                     Section::make('Usulan / Rekomendasi')
                         ->schema([
                             Html::make(new HtmlString(
-                                '<div style="font-size: 1rem; line-height: 1.65; color: #1f2937;">' .
+                                '<div class="text-base leading-relaxed text-gray-900 dark:text-gray-100">' .
                                     e($fisikRekomendasiText) .
                                 '</div>' .
-                                '<div style="margin-top: 0.5rem; font-size: 0.875rem; line-height: 1.5; color: #6b7280;">' .
+                                '<div class="mt-2 text-sm leading-relaxed text-gray-600 dark:text-gray-100">' .
                                     'Catatan: Usulan ini merupakan hasil pengolahan sistem dan digunakan sebagai bahan pertimbangan pendukung.' .
                                 '</div>'
                             )),
