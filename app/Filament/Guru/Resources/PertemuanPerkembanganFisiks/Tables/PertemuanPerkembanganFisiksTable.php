@@ -38,6 +38,7 @@ class PertemuanPerkembanganFisiksTable
 
                 Tables\Columns\TextColumn::make('tahunAjaran.tahun')
                     ->label('Tahun Ajaran')
+                    ->formatStateUsing(fn ($state, $record) => $record?->tahunAjaran?->label ?? $state)
                     ->sortable()
                     ->searchable()
                     ->toggleable(),

@@ -13,7 +13,7 @@ class ViewPertemuanPerkembanganFisik extends ViewRecord
 
     public function getHeading(): string
     {
-        return 'Detail Pertemuan';
+        return 'Detail Pertemuan Perkembangan Fisik';
     }
 
     protected function getHeaderActions(): array

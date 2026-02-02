@@ -17,7 +17,11 @@ class SiswaForm
                 TextInput::make('nis')
                     ->label('NISN')
                     ->required()
-                    ->maxLength(50),
+                    ->maxLength(50)
+                    ->unique(ignoreRecord: true)
+                    ->validationMessages([
+                        'unique' => 'NISN sudah digunakan.',
+                    ]),
 
                 TextInput::make('nama')
                     ->label('Nama Siswa')
@@ -52,6 +56,7 @@ class SiswaForm
                 Select::make('tahun_ajaran_id')
                     ->label('Tahun Ajaran')
                     ->relationship('tahunAjaran', 'tahun')
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->label)
                     ->searchable()
                     ->preload()
                     ->required(),

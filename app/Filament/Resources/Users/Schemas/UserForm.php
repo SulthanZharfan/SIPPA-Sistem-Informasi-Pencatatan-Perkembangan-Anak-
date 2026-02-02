@@ -14,7 +14,7 @@ class UserForm
             ->columns(2)
             ->components([
                 TextInput::make('name')
-                    ->label('Nama')
+                    ->label('Nama Pengguna')
                     ->required()
                     ->maxLength(255),
 

@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\Siswas\Pages;
 
 use App\Filament\Resources\Siswas\SiswaResource;
-use App\Filament\Resources\Siswas\Widgets\SiswaK1Table;
-use App\Filament\Resources\Siswas\Widgets\SiswaK2Table;
+use App\Filament\Resources\Siswas\Widgets\SiswaKelasTable;
+use App\Models\Kelas;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Schemas\Components\Livewire;
@@ -16,10 +16,21 @@ class ListSiswas extends ListRecords
 
     public function content(Schema $schema): Schema
     {
-        return $schema->components([
-            Livewire::make(SiswaK1Table::class)->key('siswa-k1-table'),
-            Livewire::make(SiswaK2Table::class)->key('siswa-k2-table'),
-        ]);
+        $kelasList = Kelas::query()
+            ->with('tahunAjaran')
+            ->orderBy('tingkat')
+            ->orderBy('nama')
+            ->get();
+
+        $components = $kelasList->map(function (Kelas $kelas) {
+            return Livewire::make(SiswaKelasTable::class, fn () => [
+                'kelasId' => $kelas->id,
+                'kelasNama' => $kelas->nama,
+                'kelasTingkat' => $kelas->tingkat,
+            ])->key('siswa-kelas-' . $kelas->id);
+        })->all();
+
+        return $schema->components($components);
     }
 
     protected function getHeaderActions(): array

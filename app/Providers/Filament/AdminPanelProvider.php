@@ -3,6 +3,8 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Resources\Admin\Pages\Dashboard;
+use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -37,6 +39,24 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->authGuard('web')
+            ->userMenuItems([
+                'logout' => fn (Action $action): Action => $action
+                    ->label('Logout')
+                    ->requiresConfirmation()
+                    ->modalHeading('Konfirmasi Keluar')
+                    ->modalDescription('Apakah Anda yakin ingin keluar dari akun ini?')
+                    ->modalSubmitActionLabel('Ya, Keluar')
+                    ->modalCancelActionLabel('Batal')
+                    ->url(null)
+                    ->postToUrl(false)
+                    ->action(function () {
+                        Filament::auth()->logout();
+                        request()->session()->invalidate();
+                        request()->session()->regenerateToken();
+
+                        return redirect()->to(Filament::getLoginUrl() ?? '/');
+                    }),
+            ])
             ->homeUrl('/admin')
             ->colors([
                 'primary' => Color::Amber,

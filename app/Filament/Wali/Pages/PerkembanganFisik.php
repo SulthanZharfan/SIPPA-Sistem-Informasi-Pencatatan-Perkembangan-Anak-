@@ -138,6 +138,7 @@ class PerkembanganFisik extends Page implements Forms\Contracts\HasForms
     {
         $latest = PerkembanganFisikModel::query()
             ->where('siswa_id', $siswaId)
+            ->where('status_persetujuan', 'disetujui')
             ->when($startDate, fn ($q) => $q->whereDate('tanggal_ukur', '>=', $startDate))
             ->when($endDate, fn ($q) => $q->whereDate('tanggal_ukur', '<=', $endDate))
             ->latest('tanggal_ukur')
@@ -146,6 +147,7 @@ class PerkembanganFisik extends Page implements Forms\Contracts\HasForms
         if (! $latest && ($startDate || $endDate)) {
             $latest = PerkembanganFisikModel::query()
                 ->where('siswa_id', $siswaId)
+                ->where('status_persetujuan', 'disetujui')
                 ->latest('tanggal_ukur')
                 ->first();
         }

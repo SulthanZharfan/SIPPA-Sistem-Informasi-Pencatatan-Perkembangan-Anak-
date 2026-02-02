@@ -6,6 +6,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
+use App\Models\User;
 
 class GuruForm
 {
@@ -19,8 +20,14 @@ class GuruForm
                     ->relationship(
                         name: 'user',
                         titleAttribute: 'email',
-                        modifyQueryUsing: fn ($query) => $query->role('guru'),
+                        modifyQueryUsing: fn ($query) => $query->whereHas('roles', fn ($roles) => $roles->whereIn('name', ['guru', 'kepsek'])),
                     )
+                    ->getOptionLabelFromRecordUsing(function (User $record): string {
+                        $roles = $record->roles?->pluck('name')->map(fn (string $role) => ucfirst($role))->implode(', ') ?? '';
+                        $suffix = $roles !== '' ? " ($roles)" : '';
+
+                        return $record->email . $suffix;
+                    })
                     ->searchable()
                     ->preload()
                     ->required(),
@@ -32,7 +39,11 @@ class GuruForm
 
                 TextInput::make('nip')
                     ->label('NIP')
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->unique(ignoreRecord: true)
+                    ->validationMessages([
+                        'unique' => 'NIP sudah digunakan.',
+                    ]),
 
                 TextInput::make('telepon')
                     ->label('No. Telepon')

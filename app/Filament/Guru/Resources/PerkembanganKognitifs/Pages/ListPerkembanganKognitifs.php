@@ -14,7 +14,8 @@ class ListPerkembanganKognitifs extends ListRecords
     {
         return [
             CreateAction::make()
-                ->label('Tambah Catatan Kognitif'),
+                ->label('Tambah Catatan Kognitif')
+                ->extraAttributes(['class' => '!text-white dark:!text-white']),
         ];
     }
 }

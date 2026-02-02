@@ -38,6 +38,12 @@
             .no-indent { text-indent: 0; }
             .indicator { border-left: 3px solid #e5e7eb; padding-left: 8px; margin-bottom: 12px; }
             .indicator-title { font-weight: 600; margin-bottom: 4px; }
+            .photo-section { margin-top: 8px; }
+            .photo-note { font-size: 11px; color: #111827; margin-bottom: 6px; }
+            .photo-empty { font-size: 11px; color: #6b7280; }
+            .photo-wrap { text-align: center; margin-top: 6px; }
+            .photo-box { display: inline-block; width: 100%; max-width: 420px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 8px; }
+            .photo-img { display: block; width: 100%; max-height: 260px; object-fit: contain; border-radius: 6px; }
         </style>
     </head>
     <body>
@@ -160,6 +166,58 @@
                                     <p class="paragraph">{!! nl2br(e(trim($paragraph))) !!}</p>
                                 @endif
                             @endforeach
+                            @php
+                                $fotoPath = trim((string) ($record->foto ?? ''));
+                                $fotoDataUri = '';
+
+                                if ($fotoPath !== '') {
+                                    if (str_starts_with($fotoPath, 'http://') || str_starts_with($fotoPath, 'https://')) {
+                                        try {
+                                            $contents = file_get_contents($fotoPath);
+                                        } catch (\Throwable $e) {
+                                            $contents = null;
+                                        }
+
+                                        if ($contents) {
+                                            $mime = (new finfo(FILEINFO_MIME_TYPE))->buffer($contents) ?: 'image/jpeg';
+                                            $fotoDataUri = 'data:' . $mime . ';base64,' . base64_encode($contents);
+                                        } else {
+                                            $fotoDataUri = $fotoPath;
+                                        }
+                                    } else {
+                                        $diskName = config('filesystems.default', 'local');
+                                        $disk = \Illuminate\Support\Facades\Storage::disk($diskName);
+
+                                        if ($disk->exists($fotoPath)) {
+                                            $absolutePath = $disk->path($fotoPath);
+                                        } elseif (str_starts_with($fotoPath, '/')) {
+                                            $absolutePath = public_path(ltrim($fotoPath, '/'));
+                                        } else {
+                                            $absolutePath = public_path($fotoPath);
+                                        }
+
+                                        if (isset($absolutePath) && is_file($absolutePath)) {
+                                            $contents = file_get_contents($absolutePath);
+                                            if ($contents !== false) {
+                                                $mime = (new finfo(FILEINFO_MIME_TYPE))->file($absolutePath) ?: 'image/jpeg';
+                                                $fotoDataUri = 'data:' . $mime . ';base64,' . base64_encode($contents);
+                                            }
+                                        }
+                                    }
+                                }
+                            @endphp
+                            <div class="photo-section">
+                                <div class="photo-note">Dokumentasi perkembangan untuk indikator ini.</div>
+                                @if ($fotoDataUri !== '')
+                                    <div class="photo-wrap">
+                                        <div class="photo-box">
+                                            <img class="photo-img" src="{{ $fotoDataUri }}" alt="Foto perkembangan {{ $indikator['label'] }}">
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="photo-empty">Belum ada foto yang diunggah.</div>
+                                @endif
+                            </div>
                         @else
                             <p class="muted">Belum ada catatan pada periode ini.</p>
                         @endif

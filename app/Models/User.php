@@ -39,6 +39,11 @@ class User extends Authenticatable implements FilamentUser
         return $this->hasOne(Guru::class);
     }
 
+    public function admin()
+    {
+        return $this->hasOne(Admin::class);
+    }
+
     // Hanya ADMIN yang bisa akses panel Filament
     public function canAccessPanel(Panel $panel): bool
     {

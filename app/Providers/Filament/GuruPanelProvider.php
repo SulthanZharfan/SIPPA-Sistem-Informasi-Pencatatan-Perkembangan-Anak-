@@ -10,6 +10,8 @@ use App\Filament\Guru\Pages\Dashboard;
 use App\Filament\Guru\Widgets\GuruHeroWidget;
 use App\Filament\Guru\Widgets\GuruStatsOverview;
 use App\Filament\Guru\Widgets\GuruStudentsTable;
+use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -30,6 +32,24 @@ class GuruPanelProvider extends PanelProvider
             ->path('guru')
             ->login()
             ->authGuard('web')
+            ->userMenuItems([
+                'logout' => fn (Action $action): Action => $action
+                    ->label('Logout')
+                    ->requiresConfirmation()
+                    ->modalHeading('Konfirmasi Keluar')
+                    ->modalDescription('Apakah Anda yakin ingin keluar dari akun ini?')
+                    ->modalSubmitActionLabel('Ya, Keluar')
+                    ->modalCancelActionLabel('Batal')
+                    ->url(null)
+                    ->postToUrl(false)
+                    ->action(function () {
+                        Filament::auth()->logout();
+                        request()->session()->invalidate();
+                        request()->session()->regenerateToken();
+
+                        return redirect()->to(Filament::getLoginUrl() ?? '/');
+                    }),
+            ])
             ->homeUrl('/guru')
             ->colors([
                 'primary' => Color::Amber,

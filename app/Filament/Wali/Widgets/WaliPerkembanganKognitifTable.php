@@ -26,6 +26,7 @@ class WaliPerkembanganKognitifTable extends TableWidget
         return PerkembanganKognitif::query()
             ->with(['indikator'])
             ->where('siswa_id', $this->siswaId)
+            ->where('status_persetujuan', 'disetujui')
             ->orderByDesc('created_at');
     }
 

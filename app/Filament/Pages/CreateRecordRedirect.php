@@ -6,6 +6,11 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateRecordRedirect extends CreateRecord
 {
+    public function canCreateAnother(): bool
+    {
+        return false;
+    }
+
     protected function getCreatedNotificationTitle(): ?string
     {
         return 'Berhasil disimpan';
@@ -16,4 +21,3 @@ class CreateRecordRedirect extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 }
-

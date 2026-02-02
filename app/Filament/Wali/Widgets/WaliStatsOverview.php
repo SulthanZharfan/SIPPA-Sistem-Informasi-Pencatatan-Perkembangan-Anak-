@@ -26,7 +26,7 @@ class WaliStatsOverview extends BaseWidget
                 ->color('primary')
                 ->icon('heroicon-o-user-circle')
                 ->extraAttributes([
-                    'style' => 'background: linear-gradient(135deg, #fff7d6 0%, #e6f7ff 100%); border-color: #f2e8c9;',
+                    'class' => 'wali-welcome-stat',
                 ]),
         ];
     }

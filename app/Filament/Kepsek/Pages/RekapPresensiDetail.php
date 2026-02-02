@@ -297,16 +297,15 @@ class RekapPresensiDetail extends Page implements HasTable
         $tahunAjaranId = $this->tahun_ajaran_id;
 
         if ($this->getMode() === 'harian' && $this->pertemuan) {
-            $pertemuan = $this->getPertemuan();
-            $kelasId = $kelasId ?? $pertemuan?->kelas_id;
-            $guruId = $guruId ?? $pertemuan?->guru_id;
-            $tahunAjaranId = $tahunAjaranId ?? $pertemuan?->tahun_ajaran_id;
+            $query->where('pertemuan_presensi_id', $this->pertemuan);
+        } else {
+            $query
+                ->when($kelasId, fn (Builder $q) => $q->where('kelas_id', $kelasId))
+                ->when($guruId, fn (Builder $q) => $q->where('guru_id', $guruId))
+                ->when($tahunAjaranId, fn (Builder $q) => $q->where('tahun_ajaran_id', $tahunAjaranId))
+                ->when($this->mulai, fn (Builder $q) => $q->whereDate('tanggal', '>=', $this->mulai))
+                ->when($this->sampai, fn (Builder $q) => $q->whereDate('tanggal', '<=', $this->sampai));
         }
-
-        $query
-            ->when($kelasId, fn (Builder $q) => $q->where('kelas_id', $kelasId))
-            ->when($guruId, fn (Builder $q) => $q->where('guru_id', $guruId))
-            ->when($tahunAjaranId, fn (Builder $q) => $q->where('tahun_ajaran_id', $tahunAjaranId));
 
         $result = $query->selectRaw("
             SUM(status_kehadiran = 'hadir') as hadir_count,

@@ -22,6 +22,7 @@ use Filament\Schemas\Components\Text;
 use Filament\Schemas\Schema;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use BackedEnum;
 use UnitEnum;
@@ -163,6 +164,18 @@ class LaporanSemester extends Page implements Forms\Contracts\HasForms
             $sectionSchema = [];
             if ($record) {
                 $sectionSchema[] = Html::make($this->buildNarasiHtml($narasiText));
+                $sectionSchema[] = Section::make('Foto')
+                    ->schema([
+                        Grid::make(2)
+                            ->schema([
+                                Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Dokumentasi perkembangan untuk indikator ini.</div>')),
+                                Html::make(new HtmlString('<div class="text-sm text-gray-900 dark:text-gray-100">Belum ada foto yang diunggah.</div>'))
+                                    ->hidden(fn () => ! blank($record?->foto)),
+                            ]),
+                        Html::make(fn () => $this->buildFotoHtml($record?->foto, $indikatorLabel))
+                            ->hidden(fn () => blank($record?->foto)),
+                    ])
+                    ->columns(1);
             } else {
                 $sectionSchema[] = Text::make('Belum ada catatan pada periode ini.');
             }
@@ -329,7 +342,10 @@ class LaporanSemester extends Page implements Forms\Contracts\HasForms
             $query->whereBetween('tanggal_ukur', [$startDate, $endDate]);
         }
 
-        $latest = $query->latest('tanggal_ukur')->first();
+        $latest = $query
+            ->where('status_persetujuan', 'disetujui')
+            ->latest('tanggal_ukur')
+            ->first();
 
         $statusRaw = $latest?->status_ringkas;
         $statusLabel = match ($statusRaw) {
@@ -377,7 +393,8 @@ class LaporanSemester extends Page implements Forms\Contracts\HasForms
 
         $query = PerkembanganKognitifModel::query()
             ->with(['indikator'])
-            ->where('siswa_id', $siswaId);
+            ->where('siswa_id', $siswaId)
+            ->where('status_persetujuan', 'disetujui');
 
         if ($tahunAjaranId) {
             $query->where('tahun_ajaran_id', $tahunAjaranId);
@@ -478,6 +495,46 @@ class LaporanSemester extends Page implements Forms\Contracts\HasForms
                 '<div class="text-base text-gray-900 dark:text-gray-100 font-medium">' . e($value) . '</div>' .
             '</div>'
         );
+    }
+
+    protected function getFotoUrl(?string $path): string
+    {
+        $path = trim((string) $path);
+
+        if ($path === '') {
+            return '';
+        }
+
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://') || str_starts_with($path, '/')) {
+            return $path;
+        }
+
+        $diskName = config('filesystems.default', 'local');
+        $disk = Storage::disk($diskName);
+
+        if ($disk->providesTemporaryUrls()) {
+            return $disk->temporaryUrl($path, now()->addMinutes(30));
+        }
+
+        return $disk->url($path);
+    }
+
+    protected function buildFotoHtml(?string $path, string $indikatorLabel): HtmlString
+    {
+        $url = $this->getFotoUrl($path);
+
+        if ($url === '') {
+            return new HtmlString('');
+        }
+
+        $alt = 'Foto perkembangan ' . $indikatorLabel;
+        $html = '<div style="display: flex; justify-content: center;">' .
+            '<div style="width: 100%; max-width: 520px; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px;">' .
+                '<img src="' . e($url) . '" alt="' . e($alt) . '" style="display: block; width: 100%; max-height: 320px; object-fit: contain; border-radius: 8px;" />' .
+            '</div>' .
+        '</div>';
+
+        return new HtmlString($html);
     }
 
     protected function getActiveTahunAjaran(): ?TahunAjaran

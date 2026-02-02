@@ -13,7 +13,7 @@ class Dashboard extends BaseDashboard
 {
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-chart-bar';
 
-    protected static ?string $navigationLabel = 'Dashboard';
+    protected static ?string $navigationLabel = 'Dashboard Kepala Sekolah';
 
     protected static ?string $title = 'Dashboard Kepsek';
 

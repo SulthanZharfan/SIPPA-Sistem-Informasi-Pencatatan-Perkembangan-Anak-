@@ -23,6 +23,10 @@ class WaliForm
                         titleAttribute: 'email',
                         modifyQueryUsing: fn (Builder $query) => $query->role('wali'),
                     )
+                    ->unique(ignoreRecord: true)
+                    ->validationMessages([
+                        'unique' => 'Akun wali ini sudah digunakan.',
+                    ])
                     ->searchable()
                     ->preload()
                     ->native(false)

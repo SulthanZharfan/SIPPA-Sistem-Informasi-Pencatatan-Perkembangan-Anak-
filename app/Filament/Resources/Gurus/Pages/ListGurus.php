@@ -14,7 +14,7 @@ class ListGurus extends ListRecords
     {
         return [
             CreateAction::make()
-                ->label('Tambah Guru'),
+                ->label('Tambah Guru/Kepala Sekolah'),
         ];
     }
 }

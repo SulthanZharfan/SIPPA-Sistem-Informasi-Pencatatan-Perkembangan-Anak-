@@ -5,6 +5,7 @@ namespace App\Filament\Kepsek\Pages;
 use App\Filament\Kepsek\Pages\RekapPresensiDetail;
 use App\Models\PertemuanPresensi;
 use App\Models\Presensi;
+use App\Models\Siswa;
 use Carbon\Carbon;
 use Filament\Actions\Action;
 use Filament\Pages\Page;
@@ -121,9 +122,13 @@ class RekapPresensi extends Page implements HasTable
     protected function getHarianQuery(): Builder
     {
         return PertemuanPresensi::query()
+            ->addSelect([
+                'total_siswa' => Siswa::query()
+                    ->selectRaw('count(*)')
+                    ->whereColumn('siswas.kelas_id', 'pertemuan_presensis.kelas_id'),
+            ])
             ->with(['kelas', 'guru', 'tahunAjaran'])
             ->withCount([
-                'presensis as total_siswa',
                 'presensis as hadir_count' => fn ($q) => $q->where('status_kehadiran', 'hadir'),
                 'presensis as alfa_count' => fn ($q) => $q->where('status_kehadiran', 'alfa'),
                 'presensis as izin_count' => fn ($q) => $q->where('status_kehadiran', 'izin'),
@@ -150,12 +155,16 @@ class RekapPresensi extends Page implements HasTable
                 FLOOR(DATEDIFF(presensis.tanggal, ta_start.tahun_mulai) / 7) + 1 as periode_key,
                 MIN(presensis.tanggal) as periode_mulai,
                 MAX(presensis.tanggal) as periode_selesai,
-                COUNT(*) as total_siswa,
                 SUM(presensis.status_kehadiran = 'hadir') as hadir_count,
                 SUM(presensis.status_kehadiran = 'alfa') as alfa_count,
                 SUM(presensis.status_kehadiran = 'izin') as izin_count,
                 SUM(presensis.status_kehadiran = 'sakit') as sakit_count
             ")
+            ->addSelect([
+                'total_siswa' => Siswa::query()
+                    ->selectRaw('count(*)')
+                    ->whereColumn('siswas.kelas_id', 'presensis.kelas_id'),
+            ])
             ->with(['kelas', 'guru', 'tahunAjaran'])
             ->groupBy('presensis.kelas_id', 'presensis.guru_id', 'presensis.tahun_ajaran_id', 'periode_key', 'ta_start.tahun_mulai')
             ->orderByDesc('periode_mulai');
@@ -171,12 +180,16 @@ class RekapPresensi extends Page implements HasTable
                 DATE_FORMAT(tanggal, '%Y-%m') as periode_key,
                 MIN(tanggal) as periode_mulai,
                 MAX(tanggal) as periode_selesai,
-                COUNT(*) as total_siswa,
                 SUM(status_kehadiran = 'hadir') as hadir_count,
                 SUM(status_kehadiran = 'alfa') as alfa_count,
                 SUM(status_kehadiran = 'izin') as izin_count,
                 SUM(status_kehadiran = 'sakit') as sakit_count
             ")
+            ->addSelect([
+                'total_siswa' => Siswa::query()
+                    ->selectRaw('count(*)')
+                    ->whereColumn('siswas.kelas_id', 'presensis.kelas_id'),
+            ])
             ->with(['kelas', 'guru', 'tahunAjaran'])
             ->groupBy('kelas_id', 'guru_id', 'tahun_ajaran_id', 'periode_key')
             ->orderByDesc('periode_mulai');

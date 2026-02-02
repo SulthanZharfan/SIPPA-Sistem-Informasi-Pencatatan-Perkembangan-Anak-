@@ -6,6 +6,8 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use Illuminate\Validation\Rule;
 
 class TahunAjaranForm
 {
@@ -18,7 +20,23 @@ class TahunAjaranForm
                     ->label('Tahun Ajaran')
                     ->placeholder('2025/2026')
                     ->required()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->rules(function (Get $get, $record) {
+                        $semester = $get('semester');
+
+                        if (! $semester) {
+                            return [];
+                        }
+
+                        return [
+                            Rule::unique('tahun_ajarans', 'tahun')
+                                ->where('semester', $semester)
+                                ->ignore($record),
+                        ];
+                    })
+                    ->validationMessages([
+                        'unique' => 'Kombinasi tahun ajaran dan semester sudah ada.',
+                    ]),
 
                 Select::make('semester')
                     ->label('Semester')
@@ -26,6 +44,7 @@ class TahunAjaranForm
                         'Ganjil' => 'Ganjil',
                         'Genap'  => 'Genap',
                     ])
+                    ->live()
                     ->required(),
 
                 Toggle::make('is_active')

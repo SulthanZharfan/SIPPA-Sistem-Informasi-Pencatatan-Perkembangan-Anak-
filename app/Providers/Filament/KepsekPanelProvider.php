@@ -4,6 +4,8 @@ namespace App\Providers\Filament;
 
 use App\Filament\Kepsek\Pages\Dashboard;
 use App\Filament\Kepsek\Widgets\KepsekStatsOverview;
+use Filament\Actions\Action;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -28,6 +30,24 @@ class KepsekPanelProvider extends PanelProvider
             ->path('kepsek')
             ->login()
             ->authGuard('web')
+            ->userMenuItems([
+                'logout' => fn (Action $action): Action => $action
+                    ->label('Logout')
+                    ->requiresConfirmation()
+                    ->modalHeading('Konfirmasi Keluar')
+                    ->modalDescription('Apakah Anda yakin ingin keluar dari akun ini?')
+                    ->modalSubmitActionLabel('Ya, Keluar')
+                    ->modalCancelActionLabel('Batal')
+                    ->url(null)
+                    ->postToUrl(false)
+                    ->action(function () {
+                        Filament::auth()->logout();
+                        request()->session()->invalidate();
+                        request()->session()->regenerateToken();
+
+                        return redirect()->to(Filament::getLoginUrl() ?? '/');
+                    }),
+            ])
             ->homeUrl('/kepsek')
             ->colors([
                 'primary' => Color::Amber,

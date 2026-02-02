@@ -188,6 +188,7 @@ class PerkembanganKognitif extends Page implements Forms\Contracts\HasForms
         return PerkembanganKognitifModel::query()
             ->with(['indikator', 'guru'])
             ->where('siswa_id', $siswaId)
+            ->where('status_persetujuan', 'disetujui')
             ->when($this->filters['tahun_ajaran_id'] ?? null, fn ($q, $id) => $q->where('tahun_ajaran_id', $id))
             ->orderByDesc('created_at')
             ->get();

@@ -6,6 +6,8 @@ use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Utilities\Get;
+use Illuminate\Validation\Rule;
 
 class DataStandarFisikAnakForm
 {
@@ -17,7 +19,23 @@ class DataStandarFisikAnakForm
                     TextInput::make('umur_bulan')
                         ->label('Umur (bulan)')
                         ->numeric()
-                        ->required(),
+                        ->required()
+                        ->rules(function (Get $get, $record) {
+                            $jenisKelamin = $get('jenis_kelamin');
+
+                            if (! $jenisKelamin) {
+                                return [];
+                            }
+
+                            return [
+                                Rule::unique('data_standar_fisiks', 'umur_bulan')
+                                    ->where('jenis_kelamin', $jenisKelamin)
+                                    ->ignore($record),
+                            ];
+                        })
+                        ->validationMessages([
+                            'unique' => 'Kombinasi umur dan jenis kelamin sudah ada.',
+                        ]),
 
                     Select::make('jenis_kelamin')
                         ->label('Jenis Kelamin')
@@ -26,6 +44,7 @@ class DataStandarFisikAnakForm
                             'P' => 'Perempuan',
                         ])
                         ->native(false)
+                        ->live()
                         ->required()
                         ->columnSpan(2),
                 ]),

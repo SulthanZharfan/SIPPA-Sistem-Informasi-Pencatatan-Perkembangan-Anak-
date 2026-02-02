@@ -16,6 +16,7 @@ class WaliPerkembanganFisikTable extends SiswaPerkembanganFisikTable
             return PerkembanganFisik::query()->whereRaw('1 = 0');
         }
 
-        return parent::getTableQuery();
+        return parent::getTableQuery()
+            ->where('status_persetujuan', 'disetujui');
     }
 }

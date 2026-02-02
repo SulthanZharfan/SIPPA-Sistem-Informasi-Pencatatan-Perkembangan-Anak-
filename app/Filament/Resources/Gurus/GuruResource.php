@@ -25,8 +25,8 @@ class GuruResource extends Resource
     // Group di menu
     protected static string | UnitEnum | null $navigationGroup = 'Master Data';
 
-    protected static ?string $navigationLabel = 'Guru';
-    protected static ?string $pluralModelLabel = 'Guru';
+    protected static ?string $navigationLabel = 'Guru/Kepala Sekolah';
+    protected static ?string $pluralModelLabel = 'Guru/Kepala Sekolah';
 
     // Judul record
     protected static ?string $recordTitleAttribute = 'nama';

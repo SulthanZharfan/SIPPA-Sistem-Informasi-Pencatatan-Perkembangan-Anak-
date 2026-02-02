@@ -195,20 +195,6 @@ class PerkembanganKognitifResource extends Resource
                 Actions\ViewAction::make()
                     ->label('Detail')
                     ->url(fn (PerkembanganKognitif $record): string => static::getUrl('view', ['record' => $record])),
-                Actions\Action::make('approve')
-                    ->label('Setujui')
-                    ->icon('heroicon-o-check-circle')
-                    ->color('success')
-                    ->visible(fn (PerkembanganKognitif $record) => $record->status_persetujuan !== 'disetujui')
-                    ->requiresConfirmation()
-                    ->action(fn (PerkembanganKognitif $record) => $record->update(['status_persetujuan' => 'disetujui'])),
-                Actions\Action::make('revisi')
-                    ->label('Minta Revisi')
-                    ->icon('heroicon-o-arrow-path')
-                    ->color('warning')
-                    ->visible(fn (PerkembanganKognitif $record) => $record->status_persetujuan !== 'revisi')
-                    ->requiresConfirmation()
-                    ->action(fn (PerkembanganKognitif $record) => $record->update(['status_persetujuan' => 'revisi'])),
             ])
             ->bulkActions([]);
     }

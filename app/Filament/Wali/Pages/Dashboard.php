@@ -34,7 +34,7 @@ class Dashboard extends Page implements Forms\Contracts\HasForms
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-home';
 
-    protected static ?string $navigationLabel = 'Dashboard';
+    protected static ?string $navigationLabel = 'Dashboard Wali Murid';
 
     protected static ?string $title = 'Dashboard Wali';
 
@@ -257,6 +257,7 @@ class Dashboard extends Page implements Forms\Contracts\HasForms
     {
         $latest = PerkembanganFisik::query()
             ->where('siswa_id', $siswaId)
+            ->where('status_persetujuan', 'disetujui')
             ->latest('tanggal_ukur')
             ->first();
 
